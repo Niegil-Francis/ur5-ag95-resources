@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="table" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <link name="world"/>
+  <joint name="fixed" type="fixed">
+    <parent
+      link="world" />
+    <child
+      link="base_link" />
+  </joint>
+
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-2.2753E-16 -0.01 -8.0718E-17"
+        rpy="0 0 0" />
+      <mass
+        value="12.332" />
+      <inertia
+        ixx="0.85144"
+        ixy="0"
+        ixz="1.9233E-16"
+        iyy="2.3557"
+        iyz="0"
+        izz="1.5051" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/table_base_link.STL" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/table_base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="left_leg">
+    <inertial>
+      <origin
+        xyz="1.1102E-16 0.28963 -2.7756E-17"
+        rpy="0 0 0" />
+      <mass
+        value="45.883" />
+      <inertia
+        ixx="4.3912"
+        ixy="1.1798E-17"
+        ixz="3.7459E-17"
+        iyy="0.47274"
+        iyz="-3.4868E-17"
+        izz="3.9416" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/table_left_leg.STL" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/table_left_leg.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_leg_jnt"
+    type="fixed">
+    <origin
+      xyz="0.585 -0.065 -0.87"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="left_leg" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="right_leg">
+    <inertial>
+      <origin
+        xyz="1.1102E-16 0.28963 0"
+        rpy="0 0 0" />
+      <mass
+        value="45.883" />
+      <inertia
+        ixx="4.3912"
+        ixy="6.9249E-18"
+        ixz="7.5698E-17"
+        iyy="0.47274"
+        iyz="-7.4658E-17"
+        izz="3.9416" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/table_right_leg.STL" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/table_right_leg.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_leg_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.585 -0.065 -0.87"
+      rpy="1.5708 0 3.1416" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_leg" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+  <gazebo reference="base_link">
+    <material> Gazebo/WoodPallet </material>
+  </gazebo>
+
+  <gazebo reference="left_leg">
+    <material> Gazebo/Black </material>
+  </gazebo>
+
+  <gazebo reference="right_leg">
+    <material> Gazebo/Black </material>
+  </gazebo>
+
+  <gazebo>
+    <static> 1 </static>
+  </gazebo>
+
+</robot>

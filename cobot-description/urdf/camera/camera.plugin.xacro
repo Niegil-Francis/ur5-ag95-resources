@@ -1,0 +1,7 @@
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+<xacro:macro name="camera_plugin" params="link_name">
+
+</xacro:macro>
+
+</robot>

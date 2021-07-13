@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+	<arg name="environment" default="industry"/>
+
+	<arg name="debug" default="false"/>
+	<arg name="gui" default="true"/>
+	<arg name="paused" default="true"/>
+	<arg name="use_sim_time" default="true"/>
+	<arg name="verbose" default="true"/>
+	<arg name="world_name" value="$(find cobot-env)/worlds/industry.world" if="$(eval arg('environment')=='industry')"/>
+
+	<!-- Launching the world -->
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+		<arg name="world_name" value="$(arg world_name)"/>
+		<arg name="debug" value="$(arg debug)"/>
+		<arg name="gui" value="$(arg gui)"/>
+		<arg name="paused" value="$(arg paused)"/>
+		<arg name="use_sim_time" value="$(arg use_sim_time)"/>
+		<arg name="verbose" value="$(arg verbose)"/>
+	</include>
+	
+	<group ns="industry" if="$(eval arg('environment')=='industry')">
+    	<param name="table_desc" 
+		 	command="$(find xacro)/xacro $(find cobot-env)/urdf/table.xacro" />
+
+		<node name="spawn_table" 
+			pkg="gazebo_ros"
+			type="spawn_model" 
+			respawn="false"
+			output="screen"
+			args="-urdf -model table -param table_desc -z 0.93"/>
+	</group>
+	
+</launch>

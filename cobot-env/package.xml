@@ -1,0 +1,28 @@
+<package format="2">
+  <name>cobot-env</name>
+  <version>1.0.0</version>
+
+  <description>Contains files and models describing the environment for the cobot.</description>
+
+  <author email="mehta.mayank860@gmail.com">Mayank N. Mehta</author>
+
+  <maintainer email="mehta.mayank860@gmail.com">Mayank N. Mehta</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roslaunch</build_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <gazebo_ros gazebo_model_path="${prefix}/models" />
+    <gazebo_ros gazebo_media_path="${prefix}"/>
+  </export>
+  
+</package>

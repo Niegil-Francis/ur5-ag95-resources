@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur5_robot">
+
+  <xacro:arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+
+  <!-- arm  -->
+  <xacro:include filename="$(find ur_description)/urdf/inc/ur5_macro.xacro"/>
+  <xacro:ur5_robot prefix="" />
+  
+  <!-- camera -->
+  <xacro:include filename="$(find cobot-description)/urdf/camera/camera.xacro" />
+  <xacro:camera
+            camera_parent="tool0"
+            origin_offset="-0.04 0.04 0"
+            origin_angle="0.0 ${-pi/2} ${pi}"/>
+
+  <!-- ag95 gripper  -->
+  <xacro:include filename="$(find cobot-description)/urdf/ag95/ag95.xacro" />
+  <xacro:ag95
+            gripper_parent="camera_mount_link"
+            joint_origin_offset="0 0 0.01"
+            joint_origin_angle="0 0 0"
+            hw_interface="$(arg transmission_hw_interface)"/>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+  </gazebo>
+
+  <link name="world"/>
+  <joint name="fixed_world" type="fixed">
+			<parent link="world" />
+			<child link="base_link" />
+			<origin rpy="0.0 0.0 0.0" xyz="0 0 0" />
+	</joint>
+
+
+</robot>

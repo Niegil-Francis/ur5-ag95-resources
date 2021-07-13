@@ -1,0 +1,32 @@
+<package format="2">
+  <name>cobot-control</name>
+  <version>1.0.0</version>
+
+  <description>
+  Contains files related to controlling the cobot. 
+  It is the main ROS package from which launch files realted to testing and final 
+  implementation are executed.
+  </description>
+
+  <author email="mehta.mayank860@gmail.com">Mayank N. Mehta</author>
+
+  <maintainer email="mehta.mayank860@gmail.com">Mayank N. Mehta</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <depend>gazebo_ros</depend>
+  <depend>roscpp</depend>
+  <depend>rospy</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>cv_bridge</depend>
+
+  <exec_depend>cobot-description</exec_depend>
+  <exec_depend>cobot-env</exec_depend>
+  <exec_depend>ur5_ag95_moveit_config</exec_depend>
+  
+</package>

@@ -1,0 +1,23 @@
+<package format="2">
+  <name>cobot-description</name>
+  <version>1.0.0</version>
+
+  <description>Contains files and models describing the cobot and the sensors attached to it.</description>
+
+  <author email="mehta.mayank860@gmail.com">Mayank N. Mehta</author>
+
+  <maintainer email="mehta.mayank860@gmail.com">Mayank N. Mehta</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>roslaunch</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>ur_description</exec_depend>
+  
+</package>
