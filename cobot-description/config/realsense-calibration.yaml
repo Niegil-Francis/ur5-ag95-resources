@@ -1,0 +1,17 @@
+# Calibration performed on 17:43, July 13, 2021
+
+translation: 
+  x: -0.023271074069
+  y: -0.0946059283988
+  z: 0.0165764383545
+rotation: 
+  x: 0.523231041709
+  y: -0.472746561989
+  z: 0.511822044868
+  w: 0.49069151155
+
+eye_on_hand: true
+robot_effector_frame: tool0
+tracking_base_frame: camera_link
+transformation: {qw: 0.49069151154959545, qx: 0.5232310417093503, qy: -0.4727465619888328,
+  qz: 0.5118220448678036, x: -0.02327107406896633, y: -0.0946059283988269, z: 0.016576438354534845}

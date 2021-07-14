@@ -1,5 +1,5 @@
 controller_list:
-  - name: fake_ur5_arm_controller
+  - name: fake_manipulator_controller
     type: $(arg execution_type)
     joints:
       - shoulder_pan_joint
@@ -13,7 +13,7 @@ controller_list:
     joints:
       - gripper_finger1_joint
 initial:  # Define initial robot poses.
-#  - group: ur5_arm
+#  - group: manipulator
 #    pose: home
 
   []
