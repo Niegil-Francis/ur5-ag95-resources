@@ -158,16 +158,18 @@ class RecognizeColor:
 			color_frame = frames.get_color_frame()
 			if not depth_frame or not color_frame:
 				continue
+			
+			# temp var to store camera coordinate; this coordinate might be discarded by the logic in this code that follows
+			temp_camera_coord = []
 
 			# create numpy array of depth and color frames
 			depth_image = np.asanyarray(depth_frame.get_data())
 			color_image = np.asanyarray(color_frame.get_data())
 
 			# cv2.imwrite("colour.jpg", color_image)
-			depth_image = depth_image
+			depth_image = depth_image		# TODO: What does this do?
 
 			cv2.imshow('org', color_image)  						# displaying the image
-			print("Press Q to perform next step")
 
 			# check is the requested color is present in the image
 			in_range_mask = cv2.inRange(color_image, (self.low_H, self.low_S, self.low_V), (self.high_H, self.high_S, self.high_V))
@@ -206,17 +208,27 @@ class RecognizeColor:
 
 						# centeroid in camera coordinate
 						# TODO: What does this logic do?
-						camera_coord = rs.rs2_deproject_pixel_to_point(depth_intrin, depth_point, depth)
-						camera_coord = np.reshape(camera_coord,(-1,1))
-						camera_coord = np.concatenate([camera_coord,np.reshape([1],(-1,1))], axis=0)
-					
-						# print("object point", camera_coord)
+						temp_camera_coord = rs.rs2_deproject_pixel_to_point(depth_intrin, depth_point, depth)
+						temp_camera_coord = np.reshape(temp_camera_coord,(-1,1))
+						temp_camera_coord = np.concatenate([temp_camera_coord,np.reshape([1],(-1,1))], axis=0)
 					else:
 						px, py = 0, 0
-
-					cv2.imshow('Contours', color_image)  # displaying the color image with contours
 					
+					cv2.imshow('Contours', color_image)  # displaying the color image with contours
+			
+			# to eliminate the cases when no camera coordinate is obtained		
+			if len(temp_camera_coord)!=0:
+				# to eliminate the cases when depth estimated is more than the allowable range
+				if temp_camera_coord[3][0] >= self.depth_max * 1000:	# depth_max parameter is in meters while coordinates are in mm
+					cv2.waitKey(1)
+					continue
+			else:
+				cv2.waitKey(1)
+				continue
+			print("Press 'q' to perform next step")
+
 			if cv2.waitKey(30)& 0xFF == ord('q'):
+				camera_coord = temp_camera_coord
 				break
 
 		cv2.destroyAllWindows()		# after pressing any key close all the window
@@ -256,7 +268,7 @@ class UR5Control:
 												moveit_msgs.msg.DisplayTrajectory,
 												queue_size=20)
 
-	def get_base_coordinates(self, camera_coord):
+	def get_base_link_coordinates(self, camera_coord):
 		"""
 		Returns the coordinate of the object's centeroid wrt base_link from the camera coordinate.
 		"""
@@ -273,7 +285,7 @@ class UR5Control:
 			try:
 				# We obtain a vector describing the translation and a quaternion describing the rotation
 				# as soon as something is returned, break the loop
-				trans, quat = listener.lookupTransform('/base', '/camera_link2', rospy.Time(0)) 
+				trans, quat = listener.lookupTransform('/base_link', '/camera_link2', rospy.Time(0)) 
 				break
 			except:
 				continue
@@ -282,9 +294,9 @@ class UR5Control:
 		# Multiply the homogenous transformations to get a combined HT
 		combinedHT = np.matmul(translation_matrix(trans), quaternion_matrix(quat))
 		
-		base_coord = np.matmul(np.array(combinedHT), camera_coord)
+		base_link_coord = np.matmul(np.array(combinedHT), camera_coord)
 		
-		return base_coord
+		return base_link_coord
 
 	def gripper_open(self):
 		"""
@@ -318,6 +330,37 @@ class UR5Control:
 			time.sleep(2)
 			print("...done!")
 
+	def get_base_coordinates(self, base_link_coord):
+		"""
+		Returns the base_link coordinate wrt base. All the motion commands
+		are taken wrt base
+		"""
+		# translation
+		trans = 0
+
+		# quaternion representing the rotation
+		quat = 0
+
+		# object to listens to the transformations
+		listener = tf.TransformListener()
+
+		while not rospy.is_shutdown():
+			try:
+				# We obtain a vector describing the translation and a quaternion describing the rotation
+				# as soon as something is returned, break the loop
+				trans, quat = listener.lookupTransform('/base', '/base_link', rospy.Time(0)) 
+				break
+			except:
+				continue
+		
+		# Obtain homogenous matrices from translation vector and the quaternion
+		# Multiply the homogenous transformations to get a combined HT
+		combinedHT = np.matmul(translation_matrix(trans), quaternion_matrix(quat))
+		
+		base_coord = np.matmul(np.array(combinedHT), base_link_coord)
+		
+		return base_coord
+
 	def move_to_location(self, base_coord):
 		"""
 		Plan a path and move to place the gripper over the centroid
@@ -326,9 +369,9 @@ class UR5Control:
 		print("Current location:")
 		print(pose_goal)
 		
-		pose_goal.position.x = base_coord[0]
-		pose_goal.position.y = base_coord[1]
-		pose_goal.position.z = base_coord[2]
+		pose_goal.position.x = base_coord[0][0]
+		pose_goal.position.y = base_coord[1][0]
+		pose_goal.position.z = base_coord[2][0]
 		
 		pose_goal.orientation.x = 1
 		pose_goal.orientation.y = -0.0315063272147
@@ -358,6 +401,9 @@ if __name__ == '__main__':
 
 	print("Camera coordinates: ", camera_coord)
 
-	base_coord = ur_control.get_base_coordinates(camera_coord)
+	base_link_coord = ur_control.get_base_link_coordinates(camera_coord)
 
-	print("Base coordinates: ", base_coord)
+	print("Base link coordinates: ", base_link_coord)
+
+	base_coord = ur_control.get_base_coordinates(base_link_coord)
+	print("Base link coordinates: ", base_coord)
