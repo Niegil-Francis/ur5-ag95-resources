@@ -1,1 +1,1 @@
-catkin_install_python(PROGRAMS moveToObj.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+catkin_install_python(PROGRAMS basic_pick_place.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

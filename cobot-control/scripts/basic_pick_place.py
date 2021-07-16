@@ -21,6 +21,7 @@ import pyrealsense2 as rs
 # math related imports
 from math import pi
 import numpy as np
+from rospy.core import rospyinfo
 import tf
 from tf.transformations import quaternion_matrix
 from tf.transformations import translation_matrix
@@ -222,6 +223,10 @@ class RecognizeColor:
 				if temp_camera_coord[3][0] >= self.depth_max * 1000:	# depth_max parameter is in meters while coordinates are in mm
 					cv2.waitKey(1)
 					continue
+				# eliminating condition that camera is touching the table
+				if temp_camera_coord[3][0] <= 0:
+					cv2.waitKey(1)
+					continue
 			else:
 				cv2.waitKey(1)
 				continue
@@ -248,7 +253,14 @@ class UR5Control:
 	the next position to reach.
 	"""
 
-	def __init__(self):
+	def __init__(self, gripper_offset=200.0, z_safety=200.0):
+		"""
+			Parameters
+			==========
+
+			- gripper_offset: int : Distance of gripper centre point from tool0 link (in mm)
+			- z_safety: int : Minimum distance of tool0 from the table (in mm)
+		"""
 		moveit_commander.roscpp_initialize(sys.argv)
 		rospy.init_node('moveToObj', anonymous=True)
 
@@ -260,13 +272,18 @@ class UR5Control:
 		group_name = "manipulator"
 		self.group = moveit_commander.MoveGroupCommander(group_name)
 
+		# self.scene.add_
+
 		print("Pausing (init)...")
-		time.sleep(2)
+		time.sleep(1)
 		print("...done!")
 
 		self.display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
 												moveit_msgs.msg.DisplayTrajectory,
 												queue_size=20)
+		
+		self.z_safety = z_safety
+		self.gripper_offset = gripper_offset
 
 	def get_base_link_coordinates(self, camera_coord):
 		"""
@@ -306,7 +323,6 @@ class UR5Control:
 			self.gripper_msg.target_position = 1000
 			self.gripper_msg.target_force = 20
 
-			rospy.loginfo(self.gripper_msg)
 			self.gripper_pub.publish(self.gripper_msg)
 			
 			# after sending the open gripper command, sleep for 2 seconds
@@ -322,7 +338,6 @@ class UR5Control:
 			self.gripper_msg.target_position = 20
 			self.gripper_msg.target_force = 20
 
-			rospy.loginfo(self.gripper_msg)
 			self.gripper_pub.publish(self.gripper_msg)
 			
 			# after sending the close gripper command, sleep for 2 seconds
@@ -330,70 +345,86 @@ class UR5Control:
 			time.sleep(2)
 			print("...done!")
 
-	def get_base_coordinates(self, base_link_coord):
+	def get_goal_pose(self, base_link_coord):
 		"""
-		Returns the base_link coordinate wrt base. All the motion commands
-		are taken wrt base
-		"""
-		# translation
-		trans = 0
+		Converts the base link coordinate location to goal pose.
+		A new parameter maybe added to this method to provide orientation information
 
-		# quaternion representing the rotation
-		quat = 0
+		Parameters
+		=====
+		- base_coord : vector describing the goal bose coordinates
 
-		# object to listens to the transformations
-		listener = tf.TransformListener()
-
-		while not rospy.is_shutdown():
-			try:
-				# We obtain a vector describing the translation and a quaternion describing the rotation
-				# as soon as something is returned, break the loop
-				trans, quat = listener.lookupTransform('/base', '/base_link', rospy.Time(0)) 
-				break
-			except:
-				continue
-		
-		# Obtain homogenous matrices from translation vector and the quaternion
-		# Multiply the homogenous transformations to get a combined HT
-		combinedHT = np.matmul(translation_matrix(trans), quaternion_matrix(quat))
-		
-		base_coord = np.matmul(np.array(combinedHT), base_link_coord)
-		
-		return base_coord
-
-	def move_to_location(self, base_coord):
-		"""
-		Plan a path and move to place the gripper over the centroid
+		Returns
+		---
+		Goal pose using input parameters
 		"""
 		pose_goal = self.group.get_current_pose().pose
-		print("Current location:")
-		print(pose_goal)
 		
-		pose_goal.position.x = base_coord[0][0]
-		pose_goal.position.y = base_coord[1][0]
-		pose_goal.position.z = base_coord[2][0]
+		pose_goal.position.x = base_link_coord[0][0]
+		pose_goal.position.y = base_link_coord[1][0]
+		pose_goal.position.z = base_link_coord[2][0] + (self.gripper_offset/1000)
+
+		if pose_goal.position.z < (self.z_safety/1000):
+			pose_goal.position.z = (self.z_safety/1000)
+			print("Z pose set to Z-safety limit!")
 		
-		pose_goal.orientation.x = 1
-		pose_goal.orientation.y = -0.0315063272147
-		pose_goal.orientation.z = -0.0107498604089
-		pose_goal.orientation.w = 0.0163806371299
-		
-		print("Pose Goal:")
-		print(pose_goal)
-		self.group.set_pose_target(pose_goal)
+		pose_goal.orientation.x = -0.926984315176
+		pose_goal.orientation.y = 0.374568844855
+		pose_goal.orientation.z = -0.00467163233836
+		pose_goal.orientation.w = 0.019401951777
+
+		return pose_goal
+
+	def move_to_location(self, goal_pose):
+		"""
+		Move the EE to the goal pose
+
+		Parameters
+		---
+		- goal_pose: pose to which path must be planned
+		"""
+		current_pose = self.group.get_current_pose().pose
+		print("Planning path from pose (current pose):  ")
+		print(current_pose)
+
+		print("To pose (goal pose): ")
+		print(goal_pose)
+
+		self.group.set_pose_target(goal_pose)
 
 		plan = self.group.plan()
-
 		
-		print("Pausing (move_to_pos)...")
+		print("Planning the path. Check RViz for visualization. Path will be executed after 5 seconds...")
 		rospy.sleep(5)
-		print("...done!")
+		print("Executing path...")
 
 		self.group.go(wait=True)
+		self.group.stop()
 		self.group.clear_pose_targets()
 
+	def get_place_location_pose(self):
+		"""
+		Returns
+		---
+		Returns the pose at which the object must to placed.
+		"""
+		pose_goal = self.group.get_current_pose().pose
+
+		pose_goal.position.x = 0.697925644962
+		pose_goal.position.y = 0.102895313812
+		pose_goal.position.z = 0.225430132411
+
+		pose_goal.orientation.x = 0.720109681727
+		pose_goal.orientation.y = -0.692563162952
+		pose_goal.orientation.z = -0.0219631139694
+		pose_goal.orientation.w = 0.0362757939835
+
+		return pose_goal
+
 if __name__ == '__main__':
-	ur_control = UR5Control()
+	ur_control = UR5Control(200.0)
+
+	ur_control.gripper_open()
 
 	recognize_color = RecognizeColor()
 
@@ -402,8 +433,19 @@ if __name__ == '__main__':
 	print("Camera coordinates: ", camera_coord)
 
 	base_link_coord = ur_control.get_base_link_coordinates(camera_coord)
-
+	
 	print("Base link coordinates: ", base_link_coord)
 
-	base_coord = ur_control.get_base_coordinates(base_link_coord)
-	print("Base link coordinates: ", base_coord)
+	initial_pose = ur_control.group.get_current_pose().pose
+
+	ur_control.move_to_location(ur_control.get_goal_pose(base_link_coord))
+
+	ur_control.gripper_close()
+	
+	ur_control.move_to_location(ur_control.get_place_location_pose())
+
+	ur_control.gripper_open()
+	
+	ur_control.move_to_location(initial_pose)
+	
+	print("Done!")
