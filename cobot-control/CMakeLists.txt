@@ -34,4 +34,4 @@ include_directories(
                     ${GAZEBO_INCLUDE_DIRS}
                     )
 
-add_subdirectory(scripts)
+add_subdirectory(scripts/basic_pick_place)
