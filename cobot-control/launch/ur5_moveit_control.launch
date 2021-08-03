@@ -16,6 +16,6 @@
   </include>
 
   <!-- launch camera calibraton  -->
-  <include file="$(find ur-ros-driver-config)/launch/calibrate_camera.launch.xml"/>
+  <!-- <include file="$(find ur-ros-driver-config)/launch/calibrate_camera.launch.xml"/> -->
 
 </launch>
