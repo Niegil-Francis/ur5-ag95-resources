@@ -28,7 +28,7 @@ static const std::string TABLE_LOCATION = "/meshes/table_complete.STL";
  */ 
 bool addTableToScene(){
 	moveit_visual_tools::MoveItVisualToolsPtr visual_tools;
-	visual_tools.reset(new moveit_visual_tools::MoveItVisualTools("world", "/move_group/monitored_planning_scene"));
+	visual_tools.reset(new moveit_visual_tools::MoveItVisualTools("world", "/random/monitored_planning_scene"));
 	visual_tools->loadPlanningSceneMonitor();
 	visual_tools->loadMarkerPub();
 	ros::Duration(2.0).sleep();
