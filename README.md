@@ -17,6 +17,10 @@ Nodes and launch files of this package require packages of the _ROS-Drivers_ rep
 ```bash
 git clone --recursive https://github.com/RIL-IISc/ROS-Drivers.git
 ```
+Install the python dependencies by executing the following command in the root directory of this repository
+```bash
+pip install -r requirements.txt
+```
 
 ### Navigate
 1. [cobot-control](./cobot-control)

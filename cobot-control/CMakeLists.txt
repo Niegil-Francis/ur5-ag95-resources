@@ -35,3 +35,4 @@ include_directories(
                     )
 
 add_subdirectory(scripts/basic_pick_place)
+add_subdirectory(scripts/adv_pick_place)

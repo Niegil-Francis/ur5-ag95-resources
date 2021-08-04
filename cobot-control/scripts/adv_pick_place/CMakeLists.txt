@@ -1,0 +1,1 @@
+catkin_install_python(PROGRAMS adv_pick_place.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
