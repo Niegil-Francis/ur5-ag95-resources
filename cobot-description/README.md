@@ -36,7 +36,7 @@ It has the following components attached:
 	```
 5. 
 	```bash
-	sudo apt install ros-${ROS_DISTRO}-joint-trajectory-controllers
+	sudo apt install ros-${ROS_DISTRO}-joint-trajectory-controller
 	```
 6. 
 	```bash
