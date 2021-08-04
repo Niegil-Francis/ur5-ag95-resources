@@ -32,15 +32,15 @@ It has the following components attached:
 	```
 4. 
 	```bash
-	sudo apt install ros-noetic-moveit
+	sudo apt install ros-${ROS_DISTRO}-moveit
 	```
 5. 
 	```bash
-	sudo apt install ros-noetic-joint-trajectory-controllers
+	sudo apt install ros-${ROS_DISTRO}-joint-trajectory-controllers
 	```
 6. 
 	```bash
-	sudo apt install ros-noetic-moveit-visual-tools
+	sudo apt install ros-${ROS_DISTRO}-moveit-visual-tools
 	```
 
 <br/>
