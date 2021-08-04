@@ -61,6 +61,13 @@ class RecognizeColor:
 		self.depth_min = 0.11
 		self.depth_max = 1.0
 
+		self.low_H = 0
+		self.low_S = 0
+		self.low_V = 112
+		self.high_H = 180
+		self.high_S = 74
+		self.high_V = 255
+
 	def get_color_from_speech(self):
 		"""
 		Returns the color value from speech
