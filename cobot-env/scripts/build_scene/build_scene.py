@@ -121,7 +121,7 @@ if __name__ == '__main__':
 	print(spawner.attach_mesh(
 			'table', 
 			'base', 
-			[0,0,-0.01,0,0,0],
+			[0,0,-0.01,0,0,45],
 			'base',
 			[],
 			'table_complete.STL'))

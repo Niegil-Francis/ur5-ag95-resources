@@ -15,4 +15,7 @@
   <!-- launch camera calibraton  -->
   <include file="$(find ur-ros-driver-config)/launch/calibrate_camera.launch.xml"/>
 
+  <!-- Build the environment in RViz  -->
+  <node pkg="cobot-env" type="build_scene.py" name="scene_builder"/>
+  
 </launch>
