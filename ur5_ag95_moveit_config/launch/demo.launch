@@ -64,4 +64,7 @@
     <arg name="moveit_warehouse_database_path" value="$(arg db_path)"/>
   </include>
 
+  <!-- Build the environment in RViz  -->
+  <node pkg="cobot-env" type="build_scene.py" name="scene_builder"/>
+
 </launch>
