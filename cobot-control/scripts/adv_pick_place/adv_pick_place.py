@@ -3,9 +3,11 @@
 # generic imports
 import sys
 import time
+import signal
 
 # ROS imports
 import rospy
+from rospkg import RosPack
 
 # MoveIt imports
 import moveit_commander
@@ -27,6 +29,9 @@ import tf
 from tf.transformations import quaternion_matrix
 from tf.transformations import translation_matrix
 from scipy.spatial.transform import Rotation as R
+
+# misc imports
+import yaml
 
 class RecognizeColor:
 	"""
@@ -208,17 +213,21 @@ class UR5Control:
 	"""
 	A utility class containing methods that aid in moving the UR5 arm
 	as well as the AG95 gripper. It also contains methods to estimate
-	the next position to reach.
+	the next position to reach. It reads pose values from YAML file.
 	"""
 
-	def __init__(self, gripper_offset=200.0, z_safety=200.0):
+	def __init__(self, z_safety_limit = 0.01):
 		"""
-			Parameters
-			==========
+		Initializes moveit_commander, ros-node, publishers and subscribers.
 
-			- gripper_offset: int : Distance of gripper centre point from tool0 link (in mm)
-			- z_safety: int : Minimum distance of tool0 from the table (in mm)
+		Parameters
+		----------
+		z_safety_limit: float:
+			Minimum z coordinate of TCP wrt base_link frame (in m)
 		"""
+		signal.signal(signal.SIGINT, self.exit_gracefully)
+		signal.signal(signal.SIGTERM, self.exit_gracefully)
+		
 		moveit_commander.roscpp_initialize(sys.argv)
 		rospy.init_node('advPickPlace', anonymous=True)
 
@@ -229,6 +238,8 @@ class UR5Control:
 		self.scene = moveit_commander.PlanningSceneInterface()
 		group_name = "manipulator"
 		self.group = moveit_commander.MoveGroupCommander(group_name)
+		self.group.set_planning_time(10)
+		self.group.set_planner_id('RRT')
 
 		print("Pausing (init)...")
 		time.sleep(1)
@@ -237,13 +248,24 @@ class UR5Control:
 		self.display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
 												moveit_msgs.msg.DisplayTrajectory,
 												queue_size=20)
-		
-		self.z_safety = z_safety
-		self.gripper_offset = gripper_offset
+		self.z_safety_limit = z_safety_limit
 
+		# initializing variables
+		rp = RosPack()
+		dir_path = rp.get_path('cobot-control') + "/scripts/adv_pick_place/"
+
+		# opening YAML file for poses
+		with open(dir_path + "poses.yaml", 'r') as stream:
+			try:
+				self.determined_poses = yaml.safe_load(stream)
+			except yaml.YAMLError as exc:
+				print(exc)
+				print("Exiting because some issues with loading YAML")
+				sys.exit(0)
+		
 	def getBaseLinkCoordinates(self, camera_coord):
 		"""
-		Returns the coordinate of the object's centeroid wrt base_link from the camera coordinate.
+		Returns the coordinate of the TCP wrt base_link frame from the camera frame coordinates.
 		"""
 		# translation
 		trans = 0
@@ -271,44 +293,58 @@ class UR5Control:
 		
 		return base_link_coord
 
-	def openGripper(self):
+	def controlGripper(self, target_force, target_position):
 		"""
-		Opens the gripper
+		Controls the gripper
+
+		Parameters
+		---------
+		target_force: float:
+			Force applied on the fingers
+		target_position: float:
+			Position of the fingers
 		"""
 		if not rospy.is_shutdown():
-			self.gripper_msg.target_position = 1000
-			self.gripper_msg.target_force = 20
+			self.gripper_msg.target_position = target_position
+			self.gripper_msg.target_force = target_force
 
 			self.gripper_pub.publish(self.gripper_msg)
 			
-			# after sending the open gripper command, sleep for 2 seconds
-			print("Pausing (openGripper)...")
+			# after sending the gripper command, sleep for 2 seconds
+			print("Pausing (controlGripper)...")
 			time.sleep(2)
 			print("...done!")
+
+	def openGripper(self, target_force=5):
+		"""
+		Utility function that opens the gripper
+
+		Parameters
+		---------
+		target_force: float:
+			Force applied on the fingers
+		"""
+		self.controlGripper(target_force=target_force, target_position=1000)
 	
-	def closeGripper(self):
+	def closeGripper(self, target_force=5):
 		"""
-		Closes the gripper
-		"""
-		if not rospy.is_shutdown():
-			self.gripper_msg.target_position = 20
-			self.gripper_msg.target_force = 20
+		Utility function that closes the gripper
 
-			self.gripper_pub.publish(self.gripper_msg)
-			
-			# after sending the close gripper command, sleep for 2 seconds
-			print("Pausing (closeGripper)...")
-			time.sleep(2)
-			print("...done!")
-
-	def getGoalPose(self, base_link_coord):
+		Parameters
+		---------
+		target_force: float:
+			Force applied on the fingers
 		"""
-		Converts the base link coordinate location to goal pose.
-		A new parameter maybe added to this method to provide orientation information
+		self.controlGripper(target_force=target_force, target_position=20)
+	
+	def getPickGoalPose(self, base_link_coord):
+		"""
+		Converts the TCP coordinates in base_link frame to pick goal pose.
+		A new parameter maybe added to this method to provide orientation information.
 
 		Parameters
 		----
-		- base_coord : vector describing the goal bose coordinates
+		- base_coord : column vector describing the goal TCP coordinates wrt base_link frame
 
 		Returns
 		---
@@ -318,22 +354,18 @@ class UR5Control:
 		
 		pose_goal.position.x = base_link_coord[0][0]
 		pose_goal.position.y = base_link_coord[1][0]
-		pose_goal.position.z = base_link_coord[2][0] + (self.gripper_offset/1000)
+		pose_goal.position.z = base_link_coord[2][0]
 
-		if pose_goal.position.z < (self.z_safety/1000):
-			pose_goal.position.z = (self.z_safety/1000)
-			print("Z pose set to Z-safety limit!")
-		
-		pose_goal.orientation.x = -0.926984315176
-		pose_goal.orientation.y = 0.374568844855
-		pose_goal.orientation.z = -0.00467163233836
-		pose_goal.orientation.w = 0.019401951777
+		pose_goal.orientation.x = self.determined_poses['pickOrientation']['orientation']['x']
+		pose_goal.orientation.y = self.determined_poses['pickOrientation']['orientation']['y']
+		pose_goal.orientation.z = self.determined_poses['pickOrientation']['orientation']['z']
+		pose_goal.orientation.w = self.determined_poses['pickOrientation']['orientation']['w']
 
 		return pose_goal
 
 	def moveToLocation(self, goal_pose):
 		"""
-		Move the EE to the goal pose
+		Move the TCP to the goal pose. Checks for Z safety limit
 
 		Parameters
 		----------
@@ -345,9 +377,14 @@ class UR5Control:
 			- 0: User does not agree to execute the planned path
 			- 1: User agrees to execute the planned path and the path is executed
 		"""
+		self.group.clear_pose_targets()
 		current_pose = self.group.get_current_pose().pose
 		print("Planning path from pose (current pose):  ")
 		print(current_pose)
+
+		if goal_pose.position.z < self.z_safety_limit:
+			goal_pose.position.z = self.z_safety_limit
+			rospy.logwarn("The goal pose has invalid Z coordinate for TCP. Coordinate overridden to Z = 0.02")
 
 		print("To pose (goal pose): ")
 		print(goal_pose)
@@ -371,37 +408,42 @@ class UR5Control:
 			self.group.clear_pose_targets()
 			return 0
 
-
-	def getPlaceLocationPose(self):
+	def getPoseFromYaml(self, pose_id_name):
 		"""
 		Returns
 		---
-		Returns the pose at which the object must to placed.
+		Pose from the YAML file
 		"""
-		pose_goal = self.group.get_current_pose().pose
+		pose_yaml = self.group.get_current_pose().pose
 
-		pose_goal.position.x = 0.697925644962
-		pose_goal.position.y = 0.102895313812
-		pose_goal.position.z = 0.225430132411
+		pose_yaml.position.x = self.determined_poses[pose_id_name]['position']['x']
+		pose_yaml.position.y = self.determined_poses[pose_id_name]['position']['y']
+		pose_yaml.position.z = self.determined_poses[pose_id_name]['position']['z']
 
-		pose_goal.orientation.x = 0.720109681727
-		pose_goal.orientation.y = -0.692563162952
-		pose_goal.orientation.z = -0.0219631139694
-		pose_goal.orientation.w = 0.0362757939835
+		pose_yaml.orientation.x = self.determined_poses[pose_id_name]['orientation']['x']
+		pose_yaml.orientation.y = self.determined_poses[pose_id_name]['orientation']['y']
+		pose_yaml.orientation.z = self.determined_poses[pose_id_name]['orientation']['z']
+		pose_yaml.orientation.w = self.determined_poses[pose_id_name]['orientation']['w']
 
-		return pose_goal
+		return pose_yaml
+
+	def exit_gracefully(self, *args):
+		self.group.stop()
+		sys.exit(0)
 
 if __name__ == '__main__':
 	color_image_topic = "/camera/color/image_raw"
 	depth_image_topic = "/camera/aligned_depth_to_color/image_raw"
 	depth_image_info_topic = "/camera/aligned_depth_to_color/camera_info"
 
-	ur_control = UR5Control(180.0)
+	ur_control = UR5Control(0.02)
+
+	ur_control.moveToLocation(ur_control.getPoseFromYaml('startPose'))
 
 	recognize_color = RecognizeColor(color_image_topic, depth_image_topic, depth_image_info_topic)
 
 	print("Waiting for a second to receive data...")
-	time.sleep(2)
+	time.sleep(1)
 
 	camera_coord  = recognize_color.getCameraCoordinates()
 
@@ -413,14 +455,13 @@ if __name__ == '__main__':
 	else:
 		rospy.logerr("Could not connect to camera!")
 	
-
 	initial_pose = ur_control.group.get_current_pose().pose
 
-	ur_control.moveToLocation(ur_control.getGoalPose(base_link_coord))
+	ur_control.moveToLocation(ur_control.getPickGoalPose(base_link_coord))
 
 	ur_control.closeGripper()
 	
-	ur_control.moveToLocation(ur_control.getPlaceLocationPose())
+	ur_control.moveToLocation(ur_control.getPoseFromYaml('placePose'))
 
 	ur_control.openGripper()
 	
