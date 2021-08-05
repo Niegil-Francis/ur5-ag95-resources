@@ -41,5 +41,4 @@ catkin_package(
 
 include_directories(SYSTEM ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIRS})
 
-add_subdirectory(src/build_rviz_scene)
 add_subdirectory(scripts/build_scene)
