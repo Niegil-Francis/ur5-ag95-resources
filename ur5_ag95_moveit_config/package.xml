@@ -3,7 +3,7 @@
   <name>ur5_ag95_moveit_config</name>
   <version>0.3.0</version>
   <description>
-     An automatically generated package with all the configuration and launch files for using the ur5_robot with the MoveIt! Motion Planning Framework
+     An automatically generated package with all the configuration and launch files for using the ur5_robot with the MoveIt Motion Planning Framework
   </description>
   <author email="mehta.mayank860@gmail.com">Mayank N. Mehta</author>
   <maintainer email="mehta.mayank860@gmail.com">Mayank N. Mehta</maintainer>

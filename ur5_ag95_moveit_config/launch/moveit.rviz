@@ -3,11 +3,9 @@ Panels:
     Help Height: 0
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /TF1
-        - /TF1/Frames1
-      Splitter Ratio: 0.4446679949760437
-    Tree Height: 361
+      Expanded: ~
+      Splitter Ratio: 0.8088530898094177
+    Tree Height: 371
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -152,6 +150,10 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          tcp:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           tool0:
             Alpha: 1
             Show Axes: false
@@ -302,6 +304,10 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          tcp:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           tool0:
             Alpha: 1
             Show Axes: false
@@ -422,6 +428,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        tcp:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         tool0:
           Alpha: 1
           Show Axes: false
@@ -569,6 +579,10 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          tcp:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           tool0:
             Alpha: 1
             Show Axes: false
@@ -609,7 +623,7 @@ Visualization Manager:
         base:
           Value: false
         base_link:
-          Value: true
+          Value: false
         base_link_inertia:
           Value: false
         camera_aligned_depth_to_color_frame:
@@ -625,7 +639,7 @@ Visualization Manager:
         camera_link:
           Value: false
         camera_link2:
-          Value: true
+          Value: false
         flange:
           Value: false
         forearm_link:
@@ -649,7 +663,7 @@ Visualization Manager:
       Name: TF
       Show Arrows: true
       Show Axes: true
-      Show Names: false
+      Show Names: true
       Tree:
         base_link:
           base:
@@ -677,42 +691,6 @@ Visualization Manager:
                                 {}
       Update Interval: 0
       Value: true
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 255; 255; 255
-      Color Transformer: Intensity
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Min Color: 0; 0; 0
-      Name: PointCloud2
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.009999999776482582
-      Style: Flat Squares
-      Topic: /move_group/octomap_point_cloud_centers
-      Unreliable: false
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: false
-      Marker Topic: /move_group/occupied_cells_vis_array
-      Name: MarkerArray
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -729,7 +707,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.3801525831222534
+      Distance: 1.5447076559066772
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -737,17 +715,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.3554897904396057
-        Y: 0.44009262323379517
+        X: 0.35339629650115967
+        Y: 0.7415298223495483
         Z: -8.940639872889733e-08
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.22520416975021362
+      Pitch: 0.2702043354511261
       Target Frame: base_link
-      Yaw: 1.494928002357483
+      Yaw: 1.6699284315109253
     Saved: ~
 Window Geometry:
   Displays:
@@ -761,13 +739,13 @@ Window Geometry:
     collapsed: true
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000001f30000039efc020000000afb000000100044006900730070006c006100790073000000003d000001a6000000c900fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a0056006900650077007300000003b0000000b0000000a400fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006700000001e9000001ab0000017d00fffffffb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000003c005400720061006a006500630074006f007200790020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb00000024005200760069007a00560069007300750061006c0054006f006f006c0073004700750069000000039a000000410000004100ffffff0000039c0000039e00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000001f30000039efc020000000afb000000100044006900730070006c006100790073000000003d000001b0000000c900fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a0056006900650077007300000003b0000000b0000000a400fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006700000001f3000001a10000017d00fffffffb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000003c005400720061006a006500630074006f007200790020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb00000024005200760069007a00560069007300750061006c0054006f006f006c0073004700750069000000039a000000410000004100ffffff000003a30000039e00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   RvizVisualToolsGui:
     collapsed: true
   Trajectory - Trajectory Slider:
     collapsed: false
   Views:
     collapsed: false
-  Width: 924
-  X: 72
+  Width: 931
+  X: 0
   Y: 27

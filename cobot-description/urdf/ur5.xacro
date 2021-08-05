@@ -13,6 +13,14 @@
             camera_parent="tool0"
             origin_offset="-0.04 0.04 0"
             origin_angle="0.0 ${-pi/2} ${pi}"/>
+  
+  <!-- Adding TCP -->
+  <joint name='tcp_fixed' type='fixed'>
+    <origin xyz = '0 0 0.182' rpy = '0 0 0'/>
+    <parent link="tool0"/>
+    <child link="tcp"/>
+  </joint>
+  <link name = 'tcp'/>
 
   <!-- ag95 gripper  -->
   <xacro:include filename="$(find cobot-description)/urdf/ag95/ag95.xacro" />
