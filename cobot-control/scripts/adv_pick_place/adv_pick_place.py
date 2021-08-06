@@ -4,6 +4,7 @@
 import sys
 import time
 import signal
+import geometry_msgs
 
 # ROS imports
 import rospy
@@ -11,6 +12,7 @@ from rospkg import RosPack
 
 # MoveIt imports
 import moveit_commander
+from moveit_commander.conversions import pose_to_list
 import moveit_msgs.msg
 
 # message imports
@@ -18,6 +20,7 @@ from dh_gripper_msgs.msg import GripperState
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import CameraInfo
 from cv_bridge import CvBridge, CvBridgeError
+import geometry_msgs.msg
 
 # vision imports
 import cv2
@@ -29,6 +32,7 @@ import tf
 from tf.transformations import quaternion_matrix
 from tf.transformations import translation_matrix
 from scipy.spatial.transform import Rotation as R
+from math import dist, fabs, cos
 
 # misc imports
 import yaml
@@ -51,9 +55,9 @@ class RecognizeColor:
 		* depth_image_info_topic: Topic name on which depth image info is published
 		"""
 		self.bridge = CvBridge()
-		self.color_image_sub = rospy.Subscriber(color_image_topic, Image, self.colorCallback)
-		self.depth_image_sub = rospy.Subscriber(depth_image_topic, Image, self.depthCallback)
-		self.depth_image_info_sub = rospy.Subscriber(depth_image_info_topic, CameraInfo, self.depthInfoCallback)
+		self.color_image_sub = rospy.Subscriber(color_image_topic, Image, self.color_callback)
+		self.depth_image_sub = rospy.Subscriber(depth_image_topic, Image, self.depth_callback)
+		self.depth_image_info_sub = rospy.Subscriber(depth_image_info_topic, CameraInfo, self.depth_info_callback)
 		self.color_image = None
 		self.depth_image = None
 
@@ -70,19 +74,19 @@ class RecognizeColor:
 		self.high_S = 74
 		self.high_V = 255
 		
-	def depthCallback(self, data):
+	def depth_callback(self, data):
 		try:
 			self.depth_image = self.bridge.imgmsg_to_cv2(data, data.encoding)
 		except CvBridgeError as e:
 			rospy.logerr(e)
 	
-	def colorCallback(self,data):
+	def color_callback(self,data):
 		try:
 			self.color_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
 		except CvBridgeError as e:
 			rospy.logerr(e)
 		
-	def depthInfoCallback(self, depth_info):
+	def depth_info_callback(self, depth_info):
 		"""
 		Sets the instrinsics value from the camera info topic for depth
 		"""
@@ -105,7 +109,7 @@ class RecognizeColor:
 			rospy.logerr(e)
 			return
 
-	def getColorFromKeyboard(self):
+	def get_color_from_keyboard(self):
 		"""
 		Utility method to aid providing color value from keyboard
 
@@ -114,14 +118,14 @@ class RecognizeColor:
 		"""
 		return input("Enter the color code: [1] Red | [2] Green | [3] Yellow : ") 
 
-	def getCameraCoordinates(self):
+	def get_camera_coordinates(self):
 		"""
 		Returns
 		-------
 		The 3D camera coordinate of the centroid of the object or None
 		"""	
 		color_code = 0
-		color_code = self.getColorFromKeyboard()
+		color_code = self.get_color_from_keyboard()
 
 		if color_code == 1:
 			self.low_H = 0
@@ -225,8 +229,8 @@ class UR5Control:
 		z_safety_limit: float:
 			Minimum z coordinate of TCP wrt base_link frame (in m)
 		"""
-		signal.signal(signal.SIGINT, self.exit_gracefully)
-		signal.signal(signal.SIGTERM, self.exit_gracefully)
+		signal.signal(signal.SIGINT, self.exit_node)
+		signal.signal(signal.SIGTERM, self.exit_node)
 		
 		moveit_commander.roscpp_initialize(sys.argv)
 		rospy.init_node('advPickPlace', anonymous=True)
@@ -237,9 +241,9 @@ class UR5Control:
 		self.robot = moveit_commander.RobotCommander()
 		self.scene = moveit_commander.PlanningSceneInterface()
 		group_name = "manipulator"
-		self.group = moveit_commander.MoveGroupCommander(group_name)
-		self.group.set_planning_time(10)
-		self.group.set_planner_id('RRT')
+		self.move_group = moveit_commander.MoveGroupCommander(group_name)
+		self.move_group.set_planning_time(10)
+		self.move_group.set_planner_id('RRT')
 
 		print("Pausing (init)...")
 		time.sleep(1)
@@ -262,8 +266,37 @@ class UR5Control:
 				print(exc)
 				print("Exiting because some issues with loading YAML")
 				sys.exit(0)
+
+	def is_within_tolerance(self, goal, actual, tolerance):
+		"""
+		Convenience method for testing if the values in two lists are within a tolerance of each other.
+		For Pose and PoseStamped inputs, the angle between the two quaternions is compared (the angle
+		between the identical orientations q and -q is calculated correctly).
+		@param: goal       A list of floats, a Pose or a PoseStamped
+		@param: actual     A list of floats, a Pose or a PoseStamped
+		@param: tolerance  A float
+		@returns: bool
+		"""
+		if type(goal) is list:
+			for index in range(len(goal)):
+				if abs(actual[index] - goal[index]) > tolerance:
+					return False
 		
-	def getBaseLinkCoordinates(self, camera_coord):
+		elif type(goal) is geometry_msgs.msg.PoseStamped:
+			return self.is_within_tolerance(goal.pose, actual.pose, tolerance)
+
+		elif type(goal) is geometry_msgs.msg.Pose:
+			x0, y0, z0, qx0, qy0, qz0, qw0 = pose_to_list(actual)
+			x1, y1, z1, qx1, qy1, qz1, qw1 = pose_to_list(goal)
+			# Euclidean distance
+			d = dist((x1, y1, z1), (x0, y0, z0))
+			# phi = angle between orientations
+			cos_phi_half = fabs(qx0 * qx1 + qy0 * qy1 + qz0 * qz1 + qw0 * qw1)
+			return d <= tolerance and cos_phi_half >= cos(tolerance / 2.0)
+
+		return True
+
+	def get_base_link_coordinates(self, camera_coord):
 		"""
 		Returns the coordinate of the TCP wrt base_link frame from the camera frame coordinates.
 		"""
@@ -293,7 +326,52 @@ class UR5Control:
 		
 		return base_link_coord
 
-	def controlGripper(self, target_force, target_position):
+	def get_pose_from_yaml(self, pose_id_name):
+		"""
+		Returns
+		---
+		Pose from the YAML file
+		"""
+		pose_yaml = self.move_group.get_current_pose().pose
+
+		pose_yaml.position.x = self.determined_poses[pose_id_name]['position']['x']
+		pose_yaml.position.y = self.determined_poses[pose_id_name]['position']['y']
+		pose_yaml.position.z = self.determined_poses[pose_id_name]['position']['z']
+
+		pose_yaml.orientation.x = self.determined_poses[pose_id_name]['orientation']['x']
+		pose_yaml.orientation.y = self.determined_poses[pose_id_name]['orientation']['y']
+		pose_yaml.orientation.z = self.determined_poses[pose_id_name]['orientation']['z']
+		pose_yaml.orientation.w = self.determined_poses[pose_id_name]['orientation']['w']
+
+		return pose_yaml
+
+	def get_pick_goal_pose(self, base_link_coord):
+		"""
+		Converts the TCP coordinates in base_link frame to pick goal pose.
+		A new parameter maybe added to this method to provide orientation information.
+
+		Parameters
+		----
+		- base_coord : column vector describing the goal TCP coordinates wrt base_link frame
+
+		Returns
+		---
+		Goal pose using input parameters
+		"""
+		pose_goal = self.move_group.get_current_pose().pose
+		
+		pose_goal.position.x = base_link_coord[0][0]
+		pose_goal.position.y = base_link_coord[1][0]
+		pose_goal.position.z = base_link_coord[2][0]
+
+		pose_goal.orientation.x = self.determined_poses['pick_orientation']['orientation']['x']
+		pose_goal.orientation.y = self.determined_poses['pick_orientation']['orientation']['y']
+		pose_goal.orientation.z = self.determined_poses['pick_orientation']['orientation']['z']
+		pose_goal.orientation.w = self.determined_poses['pick_orientation']['orientation']['w']
+
+		return pose_goal
+
+	def control_gripper(self, target_force, target_position):
 		"""
 		Controls the gripper
 
@@ -311,11 +389,11 @@ class UR5Control:
 			self.gripper_pub.publish(self.gripper_msg)
 			
 			# after sending the gripper command, sleep for 2 seconds
-			print("Pausing (controlGripper)...")
+			print("Pausing (control_gripper)...")
 			time.sleep(2)
 			print("...done!")
 
-	def openGripper(self, target_force=5):
+	def open_gripper(self, target_force=5):
 		"""
 		Utility function that opens the gripper
 
@@ -324,9 +402,9 @@ class UR5Control:
 		target_force: float:
 			Force applied on the fingers
 		"""
-		self.controlGripper(target_force=target_force, target_position=1000)
+		self.control_gripper(target_force=target_force, target_position=1000)
 	
-	def closeGripper(self, target_force=5):
+	def close_gripper(self, target_force=5):
 		"""
 		Utility function that closes the gripper
 
@@ -335,35 +413,9 @@ class UR5Control:
 		target_force: float:
 			Force applied on the fingers
 		"""
-		self.controlGripper(target_force=target_force, target_position=20)
+		self.control_gripper(target_force=target_force, target_position=20)
 	
-	def getPickGoalPose(self, base_link_coord):
-		"""
-		Converts the TCP coordinates in base_link frame to pick goal pose.
-		A new parameter maybe added to this method to provide orientation information.
-
-		Parameters
-		----
-		- base_coord : column vector describing the goal TCP coordinates wrt base_link frame
-
-		Returns
-		---
-		Goal pose using input parameters
-		"""
-		pose_goal = self.group.get_current_pose().pose
-		
-		pose_goal.position.x = base_link_coord[0][0]
-		pose_goal.position.y = base_link_coord[1][0]
-		pose_goal.position.z = base_link_coord[2][0]
-
-		pose_goal.orientation.x = self.determined_poses['pickOrientation']['orientation']['x']
-		pose_goal.orientation.y = self.determined_poses['pickOrientation']['orientation']['y']
-		pose_goal.orientation.z = self.determined_poses['pickOrientation']['orientation']['z']
-		pose_goal.orientation.w = self.determined_poses['pickOrientation']['orientation']['w']
-
-		return pose_goal
-
-	def moveToLocation(self, goal_pose):
+	def move_to_location(self, goal_pose):
 		"""
 		Move the TCP to the goal pose. Checks for Z safety limit
 
@@ -377,8 +429,8 @@ class UR5Control:
 			- 0: User does not agree to execute the planned path
 			- 1: User agrees to execute the planned path and the path is executed
 		"""
-		self.group.clear_pose_targets()
-		current_pose = self.group.get_current_pose().pose
+		self.move_group.clear_pose_targets()
+		current_pose = self.move_group.get_current_pose().pose
 		print("Planning path from pose (current pose):  ")
 		print(current_pose)
 
@@ -389,9 +441,9 @@ class UR5Control:
 		print("To pose (goal pose): ")
 		print(goal_pose)
 
-		self.group.set_pose_target(goal_pose)
+		self.move_group.set_pose_target(goal_pose)
 
-		plan = self.group.plan()
+		plan = self.move_group.plan()
 		
 		print("Planning the path. Check RViz for visualization.")
 		user_in = input('Do you want to execute the path on the real cobot? [y|n] ')
@@ -399,36 +451,50 @@ class UR5Control:
 		if user_in == 'y':
 			print("Executing path after 3 seconds...")
 			rospy.sleep(3)
-			self.group.go(wait=True)
-			self.group.stop()
-			self.group.clear_pose_targets()
+			self.move_group.go(wait=True)
+			self.move_group.stop()
+			self.move_group.clear_pose_targets()
 			return 1
 		else:
 			print("Path no executed!")
-			self.group.clear_pose_targets()
+			self.move_group.clear_pose_targets()
 			return 0
 
-	def getPoseFromYaml(self, pose_id_name):
+	def move_to_joint_state(self, goal_state_id):
 		"""
+		Move the joints to goal_state. The joint values are taken from 'poses.yaml'
+		file
+
 		Returns
-		---
-		Pose from the YAML file
+		-------
+		True - if path executed and the final pose is in tolerance limits
+		False - if path executed and the final pose is NOT in tolerance limits
+		2 - if path not executed
 		"""
-		pose_yaml = self.group.get_current_pose().pose
+		joint_goal = self.move_group.get_current_joint_values()
+		for i in range(0, 6):
+			joint_goal[i] = self.determined_poses[goal_state_id][i]
+		
+		self.move_group.set_joint_value_target(joint_goal)
+		self.move_group.plan()
 
-		pose_yaml.position.x = self.determined_poses[pose_id_name]['position']['x']
-		pose_yaml.position.y = self.determined_poses[pose_id_name]['position']['y']
-		pose_yaml.position.z = self.determined_poses[pose_id_name]['position']['z']
+		print("Planning the path. Check RViz for visualization.")
+		user_in = input('Do you want to execute the path on the real cobot? [y|n] ')
 
-		pose_yaml.orientation.x = self.determined_poses[pose_id_name]['orientation']['x']
-		pose_yaml.orientation.y = self.determined_poses[pose_id_name]['orientation']['y']
-		pose_yaml.orientation.z = self.determined_poses[pose_id_name]['orientation']['z']
-		pose_yaml.orientation.w = self.determined_poses[pose_id_name]['orientation']['w']
+		if user_in == 'y':
+			print("Executing path after 3 seconds...")
+			rospy.sleep(3)
+			self.move_group.go(wait=True)
+			self.move_group.stop()
+			self.move_group.clear_pose_targets()
+			return self.is_within_tolerance(joint_goal, self.move_group.get_current_joint_values(), 0.01)
+		else:
+			print("Path no executed!")
+			self.move_group.clear_pose_targets()
+			return 2
 
-		return pose_yaml
-
-	def exit_gracefully(self, *args):
-		self.group.stop()
+	def exit_node(self, *args):
+		self.move_group.stop()
 		sys.exit(0)
 
 if __name__ == '__main__':
@@ -438,33 +504,34 @@ if __name__ == '__main__':
 
 	ur_control = UR5Control(0.02)
 
-	ur_control.moveToLocation(ur_control.getPoseFromYaml('startPose'))
+	ur_control.move_to_joint_state('start_joint_state')
 
 	recognize_color = RecognizeColor(color_image_topic, depth_image_topic, depth_image_info_topic)
 
 	print("Waiting for a second to receive data...")
 	time.sleep(1)
 
-	camera_coord  = recognize_color.getCameraCoordinates()
+	camera_coord  = recognize_color.get_camera_coordinates()
 
 	print("Camera coordinates: ", camera_coord)
 
 	if camera_coord is not None:
-		base_link_coord = ur_control.getBaseLinkCoordinates(camera_coord)
+		base_link_coord = ur_control.get_base_link_coordinates(camera_coord)
 		print("Base link coordinates: ", base_link_coord)
 	else:
 		rospy.logerr("Could not connect to camera!")
 	
-	initial_pose = ur_control.group.get_current_pose().pose
+	# initial_pose = ur_control.group.get_current_pose().pose
 
-	ur_control.moveToLocation(ur_control.getPickGoalPose(base_link_coord))
+	# ur_control.move_to_location(ur_control.get_pick_goal_pose(base_link_coord))
 
-	ur_control.closeGripper()
+	# ur_control.close_gripper()
 	
-	ur_control.moveToLocation(ur_control.getPoseFromYaml('placePose'))
+	# ur_control.move_to_location(ur_control.get_pose_from_yaml('place_pose'))
 
-	ur_control.openGripper()
+	# ur_control.open_gripper()
 	
-	ur_control.moveToLocation(initial_pose)
+	# ur_control.move_to_location(initial_pose)
 	
-	print("Done!")
+	print("Done! Press CTRL+C to exit")
+	rospy.spin()
