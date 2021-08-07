@@ -16,7 +16,7 @@
   
   <!-- Adding TCP -->
   <joint name='tcp_fixed' type='fixed'>
-    <origin xyz = '0 0 0.182' rpy = '0 0 0'/>
+    <origin xyz = '0 0 0.205' rpy = '0 0 0'/>
     <parent link="tool0"/>
     <child link="tcp"/>
   </joint>
