@@ -17,9 +17,6 @@ import moveit_msgs.msg
 
 # message imports
 from dh_gripper_msgs.msg import GripperState
-from sensor_msgs.msg import Image
-from sensor_msgs.msg import CameraInfo
-from cv_bridge import CvBridge, CvBridgeError
 import geometry_msgs.msg
 
 # vision imports
@@ -31,7 +28,6 @@ import numpy as np
 import tf
 from tf.transformations import quaternion_matrix
 from tf.transformations import translation_matrix
-from scipy.spatial.transform import Rotation as R
 from math import dist, fabs, cos
 
 # misc imports
@@ -43,29 +39,10 @@ class RecognizeColor:
 	the centroid of the object's contour.
 	"""
 
-	def __init__(self, color_image_topic, depth_image_topic, depth_image_info_topic):
+	def __init__(self):
 		"""
-		Subscribe to the required topics
-
-		Parameters
-		----------
-
-		* color_image_topic: Topic name on which color image is published
-		* depth_image_topic: Topic name on which depth image is published
-		* depth_image_info_topic: Topic name on which depth image info is published
+		Initializes the default values for the camera.
 		"""
-		self.bridge = CvBridge()
-		self.color_image_sub = rospy.Subscriber(color_image_topic, Image, self.color_callback)
-		self.depth_image_sub = rospy.Subscriber(depth_image_topic, Image, self.depth_callback)
-		self.depth_image_info_sub = rospy.Subscriber(depth_image_info_topic, CameraInfo, self.depth_info_callback)
-		self.color_image = None
-		self.depth_image = None
-
-		# intrinsic parameters required to get 3D coordinates
-		self.intrinsics = None
-
-		self.depth_max = 1.0	# metres
-
 		# default values
 		self.low_H = 0
 		self.low_S = 0
@@ -73,42 +50,19 @@ class RecognizeColor:
 		self.high_H = 180
 		self.high_S = 74
 		self.high_V = 255
-		
-	def depth_callback(self, data):
-		try:
-			self.depth_image = self.bridge.imgmsg_to_cv2(data, data.encoding)
-		except CvBridgeError as e:
-			rospy.logerr(e)
-	
-	def color_callback(self,data):
-		try:
-			self.color_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-		except CvBridgeError as e:
-			rospy.logerr(e)
-		
-	def depth_info_callback(self, depth_info):
-		"""
-		Sets the instrinsics value from the camera info topic for depth
-		"""
-		try:
-			if self.intrinsics:
-				return
-			self.intrinsics = rs.intrinsics()
-			self.intrinsics.width = depth_info.width
-			self.intrinsics.height = depth_info.height
-			self.intrinsics.ppx = depth_info.K[2]
-			self.intrinsics.ppy = depth_info.K[5]
-			self.intrinsics.fx = depth_info.K[0]
-			self.intrinsics.fy = depth_info.K[4]
-			if depth_info.distortion_model == 'plumb_bob':
-				self.intrinsics.model = rs.distortion.brown_conrady
-			elif depth_info.distortion_model == 'equidistant':
-				self.intrinsics.model = rs.distortion.kannala_brandt4
-			self.intrinsics.coeffs = [i for i in depth_info.D]
-		except CvBridgeError as e:
-			rospy.logerr(e)
-			return
 
+		# setting the camera limits
+		self.depth_resolution_x = 640
+		self.depth_resolution_y = 480
+		self.color_resolution_x = 640
+		self.color_resolution_y = 480
+		self.depth_fps = 30
+		self.color_fps = 60
+
+		# minimum and maximum depth to perceive
+		self.depth_min = 0.11
+		self.depth_max = 1.0
+		
 	def get_color_from_keyboard(self):
 		"""
 		Utility method to aid providing color value from keyboard
@@ -141,77 +95,105 @@ class RecognizeColor:
 			self.high_H = 180
 			self.high_S = 152
 			self.high_V = 51
-
-		if (self.color_image is not None) and (self.depth_image is not None):
-			camera_coord = []
 		
-			while True:
-				# temp var to store camera coordinate; this coordinate might be discarded by the logic in this code that follows
-				temp_camera_coord = []
+		# creating a pipeline to get depth and color images
+		pipeline = rs.pipeline()
+		config = rs.config()
+		config.enable_stream(rs.stream.depth, self.depth_resolution_x, self.depth_resolution_y, rs.format.z16, self.depth_fps) 
+		config.enable_stream(rs.stream.color, self.color_resolution_x, self.color_resolution_y, rs.format.bgr8, self.color_fps)
+		profile = pipeline.start(config)
+		depth_scale = profile.get_device().first_depth_sensor().get_depth_scale()
 
-				# displaying the image
-				cv2.imshow('Color image', self.color_image)
+		camera_coord = []
 
-				# check is the requested color is present in the image
-				in_range_mask = cv2.inRange(self.color_image, (self.low_H, self.low_S, self.low_V), (self.high_H, self.high_S, self.high_V))
+		while True:
+			# wait for a new frame and then get the depth and color frame 
+			frames = pipeline.wait_for_frames() 
+			depth_frame = frames.get_depth_frame()
+			color_frame = frames.get_color_frame()
+			if not depth_frame or not color_frame:
+				continue
 
-				# obtain a contour of the mask
-				contours, _ = cv2.findContours(in_range_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_L1)
+			# temp var to store camera coordinate; this coordinate might be discarded by the logic in this code that follows
+			temp_camera_coord = []
 
-				# loop through all contours
-				for c in contours:
-					if cv2.contourArea(c) < 300:  # ignore the contour area when it is less than 
-						continue
-					elif cv2.contourArea(c) > 7000:  # ignore the contour area when it is greater than
-						continue
-					else:
-						M = cv2.moments(c)  	# image moment of the contour
-						if M["m00"] != 0:
-							px = int(M["m10"] / M["m00"])  # x coordinate centroid
-							py = int(M["m01"] / M["m00"])  # y coordinate centroid
-							cv2.drawContours(self.color_image, [c], -1, (0, 255, 0), 2)
-							depth = self.depth_image[py, px].astype(float)
+			# create numpy array of depth and color frames
+			depth_image = np.asanyarray(depth_frame.get_data())
+			color_image = np.asanyarray(color_frame.get_data())
 
-							# obtaining the 3D coordinates by deprojecting
-							temp_camera_coord = rs.rs2_deproject_pixel_to_point(self.intrinsics, list((float(px),float(py))), depth)
-							temp_camera_coord = np.reshape(temp_camera_coord,(-1,1))
-							temp_camera_coord = np.concatenate([temp_camera_coord,np.reshape([1],(-1,1))], axis=0)
-						else:
-							px, py = 0, 0
-					
-					# displaying the color image with contours
-					cv2.imshow('Contours', self.color_image)  
-			
-				# to eliminate the cases when no camera coordinate is obtained		
-				if len(temp_camera_coord)!=0:
-					# to eliminate the cases when depth estimated is more than the allowable range
-					if temp_camera_coord[3][0] >= self.depth_max * 1000:	# depth_max parameter is in meters while coordinates are in mm
-						cv2.waitKey(1)
-						continue
-					# eliminating condition that camera is touching the table
-					if temp_camera_coord[3][0] <= 0:
-						cv2.waitKey(1)
-						continue
+			# cv2.imwrite("colour.jpg", color_image)
+			depth_image = depth_image		# TODO: What does this do?
+
+			cv2.imshow('org', color_image)  						# displaying the image
+
+			# check is the requested color is present in the image
+			in_range_mask = cv2.inRange(color_image, (self.low_H, self.low_S, self.low_V), (self.high_H, self.high_S, self.high_V))
+
+			# obtain a contour of the mask
+			contours, _ = cv2.findContours(in_range_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_L1)
+
+			# loop through all contours
+			for c in contours:
+				if cv2.contourArea(c) < 300:  # ignore the contour area when it is less than 
+					continue
+				elif cv2.contourArea(c) > 7000:  # ignore the contour area when it is greater than
+					continue
 				else:
+					M = cv2.moments(c)  	# image moment of the contour
+					if M["m00"] != 0:
+						px = int(M["m10"] / M["m00"])  # x coordinate centroid
+						py = int(M["m01"] / M["m00"])  # y coordinate centroid
+						cv2.drawContours(color_image, [c], -1, (0, 255, 0), 2)
+						depth_intrin = profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
+						color_intrin = profile.get_stream(rs.stream.color).as_video_stream_profile().get_intrinsics()
+
+						depth_to_color_extrin =  profile.get_stream(rs.stream.depth).as_video_stream_profile().get_extrinsics_to( profile.get_stream(rs.stream.color))
+						color_to_depth_extrin =  profile.get_stream(rs.stream.color).as_video_stream_profile().get_extrinsics_to( profile.get_stream(rs.stream.depth))
+
+						depth = depth_image[py, px].astype(float)
+
+						# obtain the depth pixel at the centroid of the contour
+						depth_point = rs.rs2_project_color_pixel_to_depth_pixel(
+													depth_frame.get_data(), depth_scale, self.depth_min, self.depth_max,
+													depth_intrin, color_intrin, depth_to_color_extrin, color_to_depth_extrin, [px,py])
+
+						# centeroid in camera frame; conversion to homogeneous coordinate
+						temp_camera_coord = rs.rs2_deproject_pixel_to_point(depth_intrin, depth_point, depth)
+						temp_camera_coord = np.reshape(temp_camera_coord,(-1,1))
+						temp_camera_coord = np.concatenate([temp_camera_coord,np.reshape([1],(-1,1))], axis=0)
+					else:
+						px, py = 0, 0
+					
+					cv2.imshow('Contours', color_image)  # displaying the color image with contours
+			
+			# to eliminate the cases when no camera coordinate is obtained		
+			if len(temp_camera_coord)!=0:
+				# to eliminate the cases when depth estimated is more than the allowable range
+				if temp_camera_coord[3][0] >= self.depth_max * 1000:	# depth_max parameter is in meters while coordinates are in mm
 					cv2.waitKey(1)
 					continue
-				print("Press 'q' to perform next step")
+				# eliminating condition that camera is touching the table
+				if temp_camera_coord[3][0] <= 0:
+					cv2.waitKey(1)
+					continue
+			else:
+				cv2.waitKey(1)
+				continue
+			print("Press 'q' to perform next step")
 
-				if cv2.waitKey(30)& 0xFF == ord('q'):
-					camera_coord = temp_camera_coord
-					break
+			if cv2.waitKey(30)& 0xFF == ord('q'):
+				camera_coord = temp_camera_coord
+				break
 
-			cv2.destroyAllWindows()		# after pressing any key close all the window
-			
-			# the camera coordinates are obtained in mm while the transformation matrix values
-			# are obtained in m. Hence, the coordinates are converted from mm to m while
-			# preserving the last element in the vector.
-			camera_coord = camera_coord/1000
-			camera_coord[3][0] = 1
+		cv2.destroyAllWindows()		# after pressing any key close all the window
+		
+		# the camera coordinates are obtained in mm while the transformation matrix values
+		# are obtained in m. Hence, the coordinates are converted from mm to m while
+		# preserving the last element in the vector.
+		camera_coord = camera_coord/1000
+		camera_coord[3][0] = 1
 
-			return camera_coord
-		else:
-			return None
+		return camera_coord
 
 class UR5Control:
 	"""
@@ -498,15 +480,11 @@ class UR5Control:
 		sys.exit(0)
 
 if __name__ == '__main__':
-	color_image_topic = "/camera/color/image_raw"
-	depth_image_topic = "/camera/aligned_depth_to_color/image_raw"
-	depth_image_info_topic = "/camera/aligned_depth_to_color/camera_info"
-
-	ur_control = UR5Control(0.02)
+	ur_control = UR5Control()
 
 	ur_control.move_to_joint_state('start_joint_state')
 
-	recognize_color = RecognizeColor(color_image_topic, depth_image_topic, depth_image_info_topic)
+	recognize_color = RecognizeColor()
 
 	print("Waiting for a second to receive data...")
 	time.sleep(1)
@@ -521,17 +499,17 @@ if __name__ == '__main__':
 	else:
 		rospy.logerr("Could not connect to camera!")
 	
-	# initial_pose = ur_control.group.get_current_pose().pose
+	initial_pose = ur_control.move_group.get_current_pose().pose
 
-	# ur_control.move_to_location(ur_control.get_pick_goal_pose(base_link_coord))
+	ur_control.move_to_location(ur_control.get_pick_goal_pose(base_link_coord))
 
-	# ur_control.close_gripper()
+	ur_control.close_gripper()
 	
-	# ur_control.move_to_location(ur_control.get_pose_from_yaml('place_pose'))
+	ur_control.move_to_location(ur_control.get_pose_from_yaml('place_pose'))
 
-	# ur_control.open_gripper()
+	ur_control.open_gripper()
 	
-	# ur_control.move_to_location(initial_pose)
+	ur_control.move_to_location(initial_pose)
 	
 	print("Done! Press CTRL+C to exit")
 	rospy.spin()
