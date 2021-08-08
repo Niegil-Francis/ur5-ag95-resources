@@ -1,21 +1,31 @@
 <launch>
+  <arg name="only_sim" default="false" />
   <arg name="debug" default="false" />
   <arg name="use_rviz" default="true" />
   
-  <!-- Launch moveit -->
-  <include file="$(find ur5_ag95_moveit_config)/launch/move_group.launch">
-    <arg name="debug" default="$(arg debug)" />
-  </include>
+  <group if="$(arg only_sim)">
+    <include file="$(find ur5_ag95_moveit_config)/launch/demo.launch">
+      <arg name="debug" default="$(arg debug)" />
+    </include>
+    <node pkg="cobot-env" type="build_scene.py" name="scene_builder1"/>
+  </group>
 
-  <include file="$(find ur5_ag95_moveit_config)/launch/moveit_rviz.launch" if="$(arg use_rviz)">
-    <arg name="config" value="$(find ur5_ag95_moveit_config)/launch/moveit.rviz"/>
-    <arg name="debug" value="$(arg debug)"/>
-  </include>
+  <group unless="$(arg only_sim)">
+    <!-- Launch moveit -->
+    <include file="$(find ur5_ag95_moveit_config)/launch/move_group.launch">
+      <arg name="debug" default="$(arg debug)" />
+    </include>
 
-  <!-- launch camera calibraton  -->
-  <include file="$(find ur-ros-driver-config)/launch/calibrate_camera.launch.xml"/>
+    <include file="$(find ur5_ag95_moveit_config)/launch/moveit_rviz.launch" if="$(arg use_rviz)">
+      <arg name="config" value="$(find ur5_ag95_moveit_config)/launch/moveit.rviz"/>
+      <arg name="debug" value="$(arg debug)"/>
+    </include>
 
-  <!-- Build the environment in RViz  -->
-  <node pkg="cobot-env" type="build_scene.py" name="scene_builder"/>
+    <!-- launch camera calibraton  -->
+    <include file="$(find ur-ros-driver-config)/launch/calibrate_camera.launch.xml"/>
+
+    <!-- Build the environment in RViz  -->
+    <node pkg="cobot-env" type="build_scene.py" name="scene_builder2"/>
+  </group>
   
 </launch>
