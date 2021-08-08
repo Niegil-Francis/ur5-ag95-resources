@@ -1,0 +1,1 @@
+catkin_install_python(PROGRAMS stop_resume_exe.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
