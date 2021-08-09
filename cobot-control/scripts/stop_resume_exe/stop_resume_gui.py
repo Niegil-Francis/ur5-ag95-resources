@@ -87,7 +87,7 @@ class StopResumeExe(QMainWindow, Ui_main_window):
 		if self.is_resumed.data:
 			self.main_btn.setText("RESUME")
 			self.is_resumed.data = False
-			# self.traj_cancel_pub.publish(self.cancel_traj)
+			self.traj_cancel_pub.publish(self.cancel_traj)
 		else:
 			self.main_btn.setText("STOP")
 			self.is_resumed.data = True
@@ -107,7 +107,7 @@ if __name__ == '__main__':
 						help='Put this flag to use only simulation')
 
 	# Execute the parse_args() method
-	args = my_parser.parse_args()
+	args, _ = my_parser.parse_known_args()
 
 	app = QtWidgets.QApplication(sys.argv)
 	win = StopResumeExe(only_sim=args.onlysim)

@@ -22,7 +22,6 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from std_msgs.msg import Bool
 
 # misc imports
-import numpy as np
 import yaml
 
 def signal_handler():
@@ -35,6 +34,9 @@ class InterruptableTrajectory(UR5Control):
 		rospy.init_node('stop_resume_exe_traj', anonymous=True)
 
 		# initializing variables
+		self.execution_start_time = 0
+		self.new_traj_planned = False
+
 		dir_path = RosPack().get_path('cobot-control') + "/scripts/stop_resume_exe/"
 		
 		# opening YAML file for topics
@@ -54,6 +56,7 @@ class InterruptableTrajectory(UR5Control):
 		self.is_resumed = data.data
 		if not self.is_resumed:
 			self.move_group.stop()
+			self.new_traj_planned = False
 
 	def generate_waypoints_0(self):
 		# defining the waypoints
@@ -69,9 +72,27 @@ class InterruptableTrajectory(UR5Control):
 
 		return initial_waypoints
 
+	def _send_traj_to_manipulator(self, robo_traj):
+		"""
+		Sends the trajectory execution command to the manipulator and starts the timer.
+
+		Parameters
+		----------
+		robo_traj : RobotTrajectory: The trajectory to be executed
+
+		Returns
+		-------
+		True if the trajectory was executed without any interruption, else false.
+		"""
+		self.execution_start_time = rospy.get_rostime()
+		return self.move_group.execute(robo_traj, wait=True)
+
 	def execute_interruptable_trajectory(self, continuous_traj):
+		self.new_traj_planned = True
 		interr_robo_traj = moveit_msgs.msg.RobotTrajectory() 	# this is the message type that is published
 		interr_traj = JointTrajectory()
+		new_waypoint = JointTrajectoryPoint()
+
 		interr_traj.header = continuous_traj.joint_trajectory.header
 		interr_traj.joint_names = continuous_traj.joint_trajectory.joint_names
 		
@@ -81,55 +102,31 @@ class InterruptableTrajectory(UR5Control):
 
 		while not rospy.is_shutdown():
 			if self.is_resumed:
-				if (self.move_group.execute(interr_robo_traj, wait=True)):
+				if (self._send_traj_to_manipulator(interr_robo_traj)):
 					rospy.loginfo("Trajectory execution completed!")
 					break
-				else:
+				elif not self.new_traj_planned:
+					time_elapsed =   rospy.get_rostime() - self.execution_start_time
+					num_waypoints = len(interr_robo_traj.joint_trajectory.points)
+
 					rospy.loginfo("Truncating the original trajectory for executing on resume...")
+					for i in range(0, num_waypoints):
+						dt = interr_robo_traj.joint_trajectory.points[i].time_from_start - time_elapsed
+						if dt.secs >= 0 and dt.nsecs >= 0:
+							rospy.loginfo("Found the closest waypoint at index: " + str(i))
+							new_waypoint.positions = self.move_group.get_current_joint_values()
+							interr_robo_traj.joint_trajectory.points.insert(i, new_waypoint)
+							# truncate the waypoints
+							interr_robo_traj.joint_trajectory.points = interr_robo_traj.joint_trajectory.points[i:]
+							
+							# update the time at each waypoint
+							num_waypoints = len(interr_robo_traj.joint_trajectory.points)
+							for i in range(0, num_waypoints):
+								interr_robo_traj.joint_trajectory.points[i].time_from_start -= dt
+							
+							self.new_traj_planned = True
+							break
 
-					# calculating the euclidean distance to find the next waypoint in original trajectory.
-					# the next waypoint has the smallest euclidean distance from current pose
-					# min_dist = 0
-					# min_dist_idx = 0
-					# next_waypoint = 0
-					# num_waypoints = len(continuous_traj.joint_trajectory.points)
-					# current_pose = self.move_group.get_current_joint_values()
-
-					# for i in range(0, num_waypoints):
-						
-
-
-
-					# break
-		
-		# cur_point = JointTrajectoryPoint()
-		# next_point = JointTrajectoryPoint()
-
-		# num_waypoints = len(continuous_traj.joint_trajectory.points)
-		# cur_waypoint = 1
-
-		# cur_point.velocities = []
-		# cur_point.accelerations = []
-		# cur_point.time_from_start = rospy.Duration(0.0)
-
-		# while True and not rospy.is_shutdown():
-		# 	if self.is_resumed:
-		# 		# add current position as first waypoint
-		# 		cur_point.positions = self.move_group.get_current_joint_values()
-		# 		interr_traj.points.append(cur_point)
-
-		# 		# add next waypoint
-		# 		next_point.positions = continuous_traj.joint_trajectory.points[cur_waypoint].positions
-		# 		next_point.time_from_start = rospy.Duration(0.0000001)
-		# 		interr_traj.points.append(next_point)
-				
-		# 		interr_robo_traj.joint_trajectory = interr_traj
-		# 		self.move_group.execute(interr_robo_traj, wait=True)
-		# 		interr_traj.points.clear()
-
-		# 		cur_waypoint = cur_waypoint + 1
-		# 		if cur_waypoint == num_waypoints:
-		# 			break
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGINT, signal_handler)
@@ -143,7 +140,5 @@ if __name__ == '__main__':
 	# obtaining moveit's trajectory
 	(ur5_traj, fraction) = ur5.get_cartesian_trajectory(ur5.generate_waypoints_0(), 0.01)
 	print("Obtained MoveIt's trajectory that is: ", str(fraction*100), " percent complete.")
-
-	# ur5.move_group.execute(ur5_traj, wait=True)
 
 	ur5.execute_interruptable_trajectory(ur5_traj)
