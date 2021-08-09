@@ -7,11 +7,15 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 
 # ROS imports
 import rospy
+from rospkg import RosPack
 from std_msgs.msg import Bool
+from actionlib_msgs.msg import GoalID
 
 # misc imports
 import sys
 import signal
+import argparse
+import yaml
 
 
 def signal_handler():
@@ -45,14 +49,33 @@ class StopResumeExe(QMainWindow, Ui_main_window):
 	Publishes the resume/stop commands input by the user.
 	"""
 
-	def __init__(self, parent=None):
+	def __init__(self, only_sim, parent=None):
 		super().__init__(parent)
 		rospy.init_node('stop_resume_exe_gui', anonymous=True)
-		self.ur5_resumed_pub = rospy.Publisher('/is_ur5_resumed', Bool, queue_size=1)
 
+		# initializing variables
+		dir_path = RosPack().get_path('cobot-control') + "/scripts/stop_resume_exe/"
+		
+		# opening YAML file for topics
+		with open(dir_path + "topics.yaml", 'r') as stream:
+			try:
+				self.topics = yaml.safe_load(stream)
+			except yaml.YAMLError as exc:
+				print(exc)
+				print("Exiting because some issues with loading YAML")
+				sys.exit(0)
+
+		if only_sim:
+			self.traj_cancel_pub = rospy.Publisher(self.topics['sim_traj_cancel'], GoalID, queue_size=1)
+		else:
+			self.traj_cancel_pub = rospy.Publisher(self.topics['hardware_traj_cancel'], GoalID, queue_size=1)
+
+		self.cancel_traj = GoalID()
+
+		self.is_resumed_pub = rospy.Publisher(self.topics['ur5_resumed'], Bool, queue_size=1)
 		self.is_resumed = Bool()
 		self.is_resumed.data = False
-		self.ur5_resumed_pub.publish(self.is_resumed)
+		self.is_resumed_pub.publish(self.is_resumed)
 
 		self.setupUi(self)
 		self.connect_signals()
@@ -64,18 +87,30 @@ class StopResumeExe(QMainWindow, Ui_main_window):
 		if self.is_resumed.data:
 			self.main_btn.setText("RESUME")
 			self.is_resumed.data = False
+			# self.traj_cancel_pub.publish(self.cancel_traj)
 		else:
 			self.main_btn.setText("STOP")
 			self.is_resumed.data = True
 		
-		self.ur5_resumed_pub.publish(self.is_resumed)
+		self.is_resumed_pub.publish(self.is_resumed)
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGINT, signal_handler)
 	signal.signal(signal.SIGTERM, signal_handler)
 
+	# Create the parser
+	my_parser = argparse.ArgumentParser(description="A GUI interface to stop/resume UR5's operation")
+
+	# Add the arguments
+	my_parser.add_argument('-s','--onlysim',
+						action='store_true',
+						help='Put this flag to use only simulation')
+
+	# Execute the parse_args() method
+	args = my_parser.parse_args()
+
 	app = QtWidgets.QApplication(sys.argv)
-	win = StopResumeExe()
+	win = StopResumeExe(only_sim=args.onlysim)
 
 	# keep on checking for CTRL+C every 100 ms
 	timer = QTimer()
