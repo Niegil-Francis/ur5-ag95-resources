@@ -7,7 +7,7 @@
     <include file="$(find ur5_ag95_moveit_config)/launch/demo.launch">
       <arg name="debug" default="$(arg debug)" />
     </include>
-    <node pkg="cobot-env" type="build_scene.py" name="scene_builder1"/>
+    <node pkg="cobot-env" type="build_scene.py" name="scene_builder1" if="$(arg only_sim)"/>
   </group>
 
   <group unless="$(arg only_sim)">
@@ -22,7 +22,7 @@
     </include>
 
     <!-- launch camera calibraton  -->
-    <include file="$(find ur-ros-driver-config)/launch/calibrate_camera.launch.xml"/>
+    <!-- <include file="$(find ur-ros-driver-config)/launch/calibrate_camera.launch.xml"/> -->
 
     <!-- Build the environment in RViz  -->
     <node pkg="cobot-env" type="build_scene.py" name="scene_builder2"/>

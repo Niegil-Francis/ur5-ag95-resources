@@ -1,3 +1,7 @@
 sim_traj_cancel: '/move_group/cancel'
 hardware_traj_cancel: '/scaled_pos_joint_traj_controller/follow_joint_trajectory/cancel'
-ur5_resumed: '/is_ur5_resumed'
+ur5_stop: '/ur5_stop'
+ur5_start: '/ur5_start'
+ur5_resume: '/ur5_resume'
+ur5_home: '/ur5_home'
+

@@ -189,6 +189,10 @@ class UR5Control:
 
 		return pose_goal
 
+	def get_random_pose_(self):
+		random_pose=self.move_group.get_random_pose()
+		return random_pose
+		
 	def get_cartesian_trajectory(self, waypoints, eef_step):
 		"""
 		Parameters
@@ -286,7 +290,8 @@ class UR5Control:
 		
 		print("Planning the path. Check RViz for visualization.")
 		user_in = input('Do you want to execute the path on the real cobot? [y|n] ')
-
+		# user_in = 'y'
+		
 		if user_in == 'y':
 			print("Executing path after 3 seconds...")
 			rospy.sleep(3)
@@ -312,6 +317,7 @@ class UR5Control:
 		"""
 		joint_goal = self.move_group.get_current_joint_values()
 		for i in range(0, 6):
+			print(self.determined_poses[goal_state_id][i])
 			joint_goal[i] = self.determined_poses[goal_state_id][i]
 		
 		self.move_group.set_joint_value_target(joint_goal)
@@ -319,7 +325,7 @@ class UR5Control:
 
 		print("Planning the path. Check RViz for visualization.")
 		user_in = input('Do you want to execute the path on the real cobot? [y|n] ')
-
+		# user_in = 'y'
 		if user_in == 'y':
 			print("Executing path after 3 seconds...")
 			rospy.sleep(3)

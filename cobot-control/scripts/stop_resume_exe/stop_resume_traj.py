@@ -2,6 +2,7 @@
 
 # Adding the common python files to path
 from os import wait
+import random
 import sys
 from rospkg import RosPack
 sys.path.insert(1, RosPack().get_path('cobot-control') + "/scripts/common/")
@@ -48,27 +49,49 @@ class InterruptableTrajectory(UR5Control):
 				print("Exiting because some issues with loading YAML")
 				sys.exit(0)
 				
-		self.resumed_sub = rospy.Subscriber(self.topics['ur5_resumed'], Bool, self.is_resumed_callback)
+		self.resumed_sub = rospy.Subscriber(self.topics['ur5_resume'], Bool, self.is_resumed_callback)
+		self.started_sub = rospy.Subscriber(self.topics['ur5_start'], Bool, self.is_started_callback)
+		self.stopped_sub = rospy.Subscriber(self.topics['ur5_stop'], Bool, self.is_stopped_callback)
+		self.homed_sub = rospy.Subscriber(self.topics['ur5_home'], Bool, self.is_homed_callback)
 
 		self.is_resumed = False
+		self.is_started = False
+		self.is_homed = False
+		self.is_stopped = False
+
+		self.flag_completed_traj=0 # flag is set when full trajectory is completed
+		self.flag_moved_to_home=0 # flag is set when homed for the first time
+
+	def is_stopped_callback(self, data):
+		self.is_stopped = data.data
 
 	def is_resumed_callback(self, data):
 		self.is_resumed = data.data
-		if not self.is_resumed:
-			self.move_group.stop()
-			self.new_traj_planned = False
+		self.new_traj_planned = False
+
+	def is_homed_callback(self, data):
+		self.is_homed = data.data
+
+	def is_started_callback(self, data):
+		self.is_started = data.data
+
 
 	def generate_waypoints_0(self):
 		# defining the waypoints
 		initial_waypoints = []
 
-		wpose = self.move_group.get_current_pose().pose
-		wpose.position.z +=  0.1 
-		wpose.position.y +=  0.2
-		initial_waypoints.append(copy.deepcopy(wpose))
+		wpose = self.get_pose_from_yaml("start_pose")
 
-		wpose.position.x +=  0.2
-		initial_waypoints.append(copy.deepcopy(wpose))
+		count=random.randint(1,4)
+		while(count>0):
+			random_pose=self.get_random_pose_()
+			while(random_pose.pose.position.z<0.190):
+				random_pose=self.get_random_pose_()
+			wpose.position.x=random_pose.pose.position.x
+			wpose.position.y=random_pose.pose.position.y
+			wpose.position.z=random_pose.pose.position.z
+			initial_waypoints.append(copy.deepcopy(wpose))
+			count-=1
 
 		return initial_waypoints
 
@@ -87,28 +110,38 @@ class InterruptableTrajectory(UR5Control):
 		self.execution_start_time = rospy.get_rostime()
 		return self.move_group.execute(robo_traj, wait=True)
 
-	def execute_interruptable_trajectory(self, continuous_traj):
+	
+
+	def execute_interruptable_trajectory(self):
 		self.new_traj_planned = True
 		interr_robo_traj = moveit_msgs.msg.RobotTrajectory() 	# this is the message type that is published
 		interr_traj = JointTrajectory()
 		new_waypoint = JointTrajectoryPoint()
 
-		interr_traj.header = continuous_traj.joint_trajectory.header
-		interr_traj.joint_names = continuous_traj.joint_trajectory.joint_names
-		
-		# intiallly add all points to the trajectory
-		interr_traj.points = continuous_traj.joint_trajectory.points
-		interr_robo_traj.joint_trajectory = interr_traj
-
+	
 		while not rospy.is_shutdown():
-			if self.is_resumed:
-				if (self._send_traj_to_manipulator(interr_robo_traj)):
-					rospy.loginfo("Trajectory execution completed!")
-					break
-				elif not self.new_traj_planned:
+			if self.flag_moved_to_home:
+				if self.is_started:
+					# obtaining moveit's trajectory
+					(continuous_traj, fraction) = self.get_cartesian_trajectory(ur5.generate_waypoints_0(), 0.01)
+					while(fraction<0.5):
+						(continuous_traj, fraction) = self.get_cartesian_trajectory(ur5.generate_waypoints_0(), 0.01)
+					print("Obtained MoveIt's trajectory that is: ", str(fraction*100), " percent complete.")
+					interr_traj.header = continuous_traj.joint_trajectory.header
+					interr_traj.joint_names = continuous_traj.joint_trajectory.joint_names
+			
+					# intiallly add all points to the trajectory
+					interr_traj.points = continuous_traj.joint_trajectory.points
+					interr_robo_traj.joint_trajectory = interr_traj
+					self.flag_completed_traj =self._send_traj_to_manipulator(interr_robo_traj)
+					if (self.flag_completed_traj):
+						rospy.loginfo("Trajectory execution completed!")
+						self.is_started=False
+						self.new_traj_planned=True
+					self.flag_moved_to_home=0
+				elif not(self.new_traj_planned) and self.is_resumed:
 					time_elapsed =   rospy.get_rostime() - self.execution_start_time
 					num_waypoints = len(interr_robo_traj.joint_trajectory.points)
-
 					rospy.loginfo("Truncating the original trajectory for executing on resume...")
 					for i in range(0, num_waypoints):
 						dt = interr_robo_traj.joint_trajectory.points[i].time_from_start - time_elapsed
@@ -125,7 +158,11 @@ class InterruptableTrajectory(UR5Control):
 								interr_robo_traj.joint_trajectory.points[i].time_from_start -= dt
 							
 							self.new_traj_planned = True
-							break
+				elif self.is_stopped:
+					self.flag_moved_to_home=0
+			elif self.is_homed and self.flag_moved_to_home==0:
+				self.move_to_joint_state("home_joint_state")
+				self.flag_moved_to_home=1
 
 
 if __name__ == '__main__':
@@ -134,11 +171,7 @@ if __name__ == '__main__':
 
 	ur5 = InterruptableTrajectory()
 
-	print("Please wait, configuring... \nMoving to start position...")
-	ur5.move_to_joint_state('start_joint_state')
+	# print("Please wait, configuring... \nMoving to start position...")
+	# ur5.move_to_joint_state('start_joint_state')
 
-	# obtaining moveit's trajectory
-	(ur5_traj, fraction) = ur5.get_cartesian_trajectory(ur5.generate_waypoints_0(), 0.01)
-	print("Obtained MoveIt's trajectory that is: ", str(fraction*100), " percent complete.")
-
-	ur5.execute_interruptable_trajectory(ur5_traj)
+	ur5.execute_interruptable_trajectory()
