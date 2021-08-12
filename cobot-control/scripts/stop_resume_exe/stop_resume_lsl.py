@@ -137,7 +137,7 @@ class StopResumeExe(QMainWindow, Ui_main_window):
 		self.is_resumed_pub = rospy.Publisher(self.topics['ur5_resume'], Bool, queue_size=1)
 		self.is_resumed = Bool()
 		self.is_resumed.data = False
-		self.is_resumed_pub.publish(self.is_started)
+		self.is_resumed_pub.publish(self.is_resumed)
 
 		self.is_homed_pub = rospy.Publisher(self.topics['ur5_home'], Bool, queue_size=1)
 		self.is_homed = Bool()

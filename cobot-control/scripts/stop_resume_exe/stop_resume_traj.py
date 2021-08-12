@@ -64,10 +64,11 @@ class InterruptableTrajectory(UR5Control):
 
 	def is_stopped_callback(self, data):
 		self.is_stopped = data.data
+		if self.is_stopped:
+			self.move_group.stop()
 
 	def is_resumed_callback(self, data):
 		self.is_resumed = data.data
-		self.new_traj_planned = False
 
 	def is_homed_callback(self, data):
 		self.is_homed = data.data
@@ -110,8 +111,6 @@ class InterruptableTrajectory(UR5Control):
 		self.execution_start_time = rospy.get_rostime()
 		return self.move_group.execute(robo_traj, wait=True)
 
-	
-
 	def execute_interruptable_trajectory(self):
 		self.new_traj_planned = True
 		interr_robo_traj = moveit_msgs.msg.RobotTrajectory() 	# this is the message type that is published
@@ -123,9 +122,9 @@ class InterruptableTrajectory(UR5Control):
 			if self.flag_moved_to_home:
 				if self.is_started:
 					# obtaining moveit's trajectory
-					(continuous_traj, fraction) = self.get_cartesian_trajectory(ur5.generate_waypoints_0(), 0.01)
-					while(fraction<0.5):
-						(continuous_traj, fraction) = self.get_cartesian_trajectory(ur5.generate_waypoints_0(), 0.01)
+					(continuous_traj, fraction) = self.get_cartesian_trajectory(self.generate_waypoints_0(), 0.01)
+					while(fraction < 0.3):
+						(continuous_traj, fraction) = self.get_cartesian_trajectory(self.generate_waypoints_0(), 0.01)
 					print("Obtained MoveIt's trajectory that is: ", str(fraction*100), " percent complete.")
 					interr_traj.header = continuous_traj.joint_trajectory.header
 					interr_traj.joint_names = continuous_traj.joint_trajectory.joint_names
@@ -133,13 +132,38 @@ class InterruptableTrajectory(UR5Control):
 					# intiallly add all points to the trajectory
 					interr_traj.points = continuous_traj.joint_trajectory.points
 					interr_robo_traj.joint_trajectory = interr_traj
-					self.flag_completed_traj =self._send_traj_to_manipulator(interr_robo_traj)
-					if (self.flag_completed_traj):
+					if (self._send_traj_to_manipulator(interr_robo_traj)):
 						rospy.loginfo("Trajectory execution completed!")
 						self.is_started=False
 						self.new_traj_planned=True
+					else:
+						time_elapsed =   rospy.get_rostime() - self.execution_start_time
+						num_waypoints = len(interr_robo_traj.joint_trajectory.points)
+						rospy.loginfo("Truncating the original trajectory for executing on resume...")
+						for i in range(0, num_waypoints):
+							dt = interr_robo_traj.joint_trajectory.points[i].time_from_start - time_elapsed
+							if dt.secs >= 0 and dt.nsecs >= 0:
+								rospy.loginfo("Found the closest waypoint at index: " + str(i))
+								new_waypoint.positions = self.move_group.get_current_joint_values()
+								interr_robo_traj.joint_trajectory.points.insert(i, new_waypoint)
+								# truncate the waypoints
+								interr_robo_traj.joint_trajectory.points = interr_robo_traj.joint_trajectory.points[i:]
+								
+								# update the time at each waypoint
+								num_waypoints = len(interr_robo_traj.joint_trajectory.points)
+								for i in range(0, num_waypoints):
+									interr_robo_traj.joint_trajectory.points[i].time_from_start -= dt
+						self.new_traj_planned = False
+					self.flag_moved_to_home = 0
+				elif self.is_stopped:
 					self.flag_moved_to_home=0
-				elif not(self.new_traj_planned) and self.is_resumed:
+			elif not(self.new_traj_planned) and self.is_resumed:
+				if (self._send_traj_to_manipulator(interr_robo_traj)):
+					rospy.loginfo("Trajectory execution completed!")
+					self.is_started=False
+					self.new_traj_planned=True
+				else:
+					self.new_traj_planned = False
 					time_elapsed =   rospy.get_rostime() - self.execution_start_time
 					num_waypoints = len(interr_robo_traj.joint_trajectory.points)
 					rospy.loginfo("Truncating the original trajectory for executing on resume...")
@@ -156,14 +180,9 @@ class InterruptableTrajectory(UR5Control):
 							num_waypoints = len(interr_robo_traj.joint_trajectory.points)
 							for i in range(0, num_waypoints):
 								interr_robo_traj.joint_trajectory.points[i].time_from_start -= dt
-							
-							self.new_traj_planned = True
-				elif self.is_stopped:
-					self.flag_moved_to_home=0
 			elif self.is_homed and self.flag_moved_to_home==0:
 				self.move_to_joint_state("home_joint_state")
-				self.flag_moved_to_home=1
-
+				self.flag_moved_to_home = 1
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGINT, signal_handler)
