@@ -36,3 +36,5 @@ include_directories(
 
 add_subdirectory(scripts/basic_pick_place)
 add_subdirectory(scripts/adv_pick_place)
+add_subdirectory(scripts/stop_resume_exe)
+add_subdirectory(scripts/single_jnt_ctrl)
