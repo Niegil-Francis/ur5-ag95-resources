@@ -2,7 +2,7 @@
   <arg name="only_sim" default="false" />
   <arg name="debug" default="false" />
   <arg name="use_rviz" default="true" />
-  
+
   <group if="$(arg only_sim)">
     <include file="$(find ur5_ag95_moveit_config)/launch/demo.launch">
       <arg name="debug" default="$(arg debug)" />

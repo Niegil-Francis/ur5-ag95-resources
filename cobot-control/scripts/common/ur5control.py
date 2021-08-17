@@ -331,3 +331,21 @@ class UR5Control:
 			print("Path no executed!")
 			self.move_group.clear_pose_targets()
 			return 2
+
+	def move_joint(self, joint_id):
+		"""
+		Moves a single joint
+
+		Parameters
+		-----------
+		joint_id: str:
+			Joint identity string.
+		"""
+		joint = self.robot.get_joint(joint_id)
+		
+		print("current base value: ", joint.value())
+
+		joint.move(-1.5708, wait=True)
+
+		print("done!")
+		pass
