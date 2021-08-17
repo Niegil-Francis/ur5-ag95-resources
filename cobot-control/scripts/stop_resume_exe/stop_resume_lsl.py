@@ -18,6 +18,7 @@ import argparse
 import yaml
 
 
+
 def signal_handler():
 	QApplication.quit()
 	sys.exit(0)
@@ -171,30 +172,26 @@ class StopResumeExe(QMainWindow, Ui_main_window):
 			self.is_started.data = False
 			self.is_stopped.data = True
 		else:
-			print("Please START operation of the manipulator")
+			print("Please START or RESUME operation of the manipulator")
 		self.is_started_pub.publish(self.is_started)
 		self.is_stopped_pub.publish(self.is_stopped)
 		self.is_resumed_pub.publish(self.is_resumed)
-		self.is_homed_pub.publish(self.is_homed)
-		self.traj_cancel_pub.publish(self.cancel_traj)
 			
 	def resume_btn_clicked(self):
 		if self.is_stopped.data:
 			self.is_resumed.data = True
 			self.is_stopped.data = False
 		else:
-			print("Operation needs to be STOPPED to resume. Press START to begin a new trajectory execution")
-		self.is_started_pub.publish(self.is_started)
+			print("Operation needs to be STOPPED to resume. Press HOME and START to begin a new trajectory execution")
 		self.is_stopped_pub.publish(self.is_stopped)
 		self.is_resumed_pub.publish(self.is_resumed)
-		self.is_homed_pub.publish(self.is_homed)
 
 	def home_btn_clicked(self):
 		self.is_homed.data = True
 		self.is_stopped.data = False
+		self.is_started.data = False
 		self.is_started_pub.publish(self.is_started)
 		self.is_stopped_pub.publish(self.is_stopped)
-		self.is_resumed_pub.publish(self.is_resumed)
 		self.is_homed_pub.publish(self.is_homed)
 
 
