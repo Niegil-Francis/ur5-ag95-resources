@@ -1,7 +1,9 @@
 <launch>
-  <arg name="only_sim" default="false" />
+  <arg name="only_sim" default="true" />
   <arg name="debug" default="false" />
   <arg name="use_rviz" default="true" />
+  <arg	name="rvizconfig" 
+		default="$(find cobot-control)/config/urdf.rviz"/>
   
 
   <!-- Load the urdf into the parameter server.
@@ -20,17 +22,11 @@
     </include> -->
     
     <!-- We do not have a robot connected, so publish fake joint states -->
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-    </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
 
+    <node name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)" output="screen"/>  
 
-    <node name="rviz" pkg="rviz" type="rviz" respawn="false"
-    output="screen">  
-    <!-- args="-d $(arg config)"  -->
-    </node>
-
-
-    <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" >
       <!-- <remap from="robot_description" to="my_robot_description" /> -->
       <remap from="joint_states" to="my_joint_states" />
     </node>
