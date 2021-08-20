@@ -44,9 +44,11 @@ import time
 def signal_handler(*args):
 	print("Writing to file")
 	with open("ERRP.txt", "w") as f:
+		f.write("[ ")	
 		for ERRP in ur5.ERRP:
 			print(ERRP)
-			f.write(str(ERRP) +"\n")	
+			f.write(str(ERRP) +" ")	
+		f.write(" ]")	
 		exit()
 	
 
@@ -171,8 +173,8 @@ class InterruptableTrajectory(UR5Control):
 					self.ext_trigger_stop_callback(True)
 				elif not(current) and self.is_homed:
 					self.ext_trigger_start_callback(True)
-				elif not(current) and self.new_traj_planned==False:
-					self.ext_trigger_resume_callback(True)
+				# elif not(current) and self.new_traj_planned==False:
+				# 	self.ext_trigger_resume_callback(True)
 			prev=current
 			
 			
@@ -275,16 +277,16 @@ class InterruptableTrajectory(UR5Control):
 						self.new_traj_planned = False
 					self.flag_moved_to_home = 0
 
-			elif not(self.new_traj_planned) and self.is_resumed:
-				if (self._send_traj_to_manipulator(self.interr_robo_traj)):
-					rospy.loginfo("Trajectory execution completed!")
-					self.is_started=False
-					self.new_traj_planned=True
-					self.traj_completed=True
-				else:
-					self.store_resumed_cartesian_path()
-					self.new_traj_planned = False
-					self.flag_moved_to_home = 0
+			# elif not(self.new_traj_planned) and self.is_resumed:
+			# 	if (self._send_traj_to_manipulator(self.interr_robo_traj)):
+			# 		rospy.loginfo("Trajectory execution completed!")
+			# 		self.is_started=False
+			# 		self.new_traj_planned=True
+			# 		self.traj_completed=True
+			# 	else:
+			# 		self.store_resumed_cartesian_path()
+			# 		self.new_traj_planned = False
+			# 		self.flag_moved_to_home = 0
 
 			elif self.is_homed and self.flag_moved_to_home==0:
 				
