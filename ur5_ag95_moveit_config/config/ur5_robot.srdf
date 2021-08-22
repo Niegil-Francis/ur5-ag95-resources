@@ -12,22 +12,10 @@
     <group name="manipulator">
         <chain base_link="base_link" tip_link="tcp"/>
     </group>
-    <group name="gripper">
-        <joint name="camera_mount"/>
-        <joint name="gripper_base_joint"/>
-        <joint name="gripper_finger1_inner_knuckle_joint"/>
-        <joint name="gripper_finger1_finger_tip_joint"/>
-        <joint name="gripper_finger1_joint"/>
-        <joint name="gripper_finger1_finger_joint"/>
-        <joint name="gripper_finger2_inner_knuckle_joint"/>
-        <joint name="gripper_finger2_finger_tip_joint"/>
-        <joint name="gripper_finger2_joint"/>
-        <joint name="gripper_finger2_finger_joint"/>
-    </group>
-    <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
-    <end_effector name="gripper" parent_link="tool0" group="gripper" parent_group="manipulator"/>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
     <virtual_joint name="fixed_base" type="fixed" parent_frame="world" child_link="world"/>
+    <!--PASSIVE JOINT: Purpose: this element is used to mark joints that are not actuated-->
+    <passive_joint name="gripper_finger1_joint"/>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
     <disable_collisions link1="base_link_inertia" link2="shoulder_link" reason="Adjacent"/>
     <disable_collisions link1="camera_mount_link" link2="gripper_base_link" reason="Adjacent"/>
@@ -56,7 +44,7 @@
     <disable_collisions link1="gripper_base_link" link2="wrist_2_link" reason="Never"/>
     <disable_collisions link1="gripper_base_link" link2="wrist_3_link" reason="Never"/>
     <disable_collisions link1="gripper_finger1_finger_link" link2="gripper_finger1_finger_tip_link" reason="Default"/>
-    <disable_collisions link1="gripper_finger1_finger_link" link2="gripper_finger1_inner_knuckle_link" reason="Never"/>
+    <disable_collisions link1="gripper_finger1_finger_link" link2="gripper_finger1_inner_knuckle_link" reason="Always"/>
     <disable_collisions link1="gripper_finger1_finger_link" link2="gripper_finger1_knuckle_link" reason="Adjacent"/>
     <disable_collisions link1="gripper_finger1_finger_link" link2="gripper_finger2_finger_link" reason="Never"/>
     <disable_collisions link1="gripper_finger1_finger_link" link2="gripper_finger2_finger_tip_link" reason="Never"/>
@@ -68,6 +56,7 @@
     <disable_collisions link1="gripper_finger1_finger_tip_link" link2="gripper_finger1_inner_knuckle_link" reason="Adjacent"/>
     <disable_collisions link1="gripper_finger1_finger_tip_link" link2="gripper_finger1_knuckle_link" reason="Never"/>
     <disable_collisions link1="gripper_finger1_finger_tip_link" link2="gripper_finger2_finger_link" reason="Never"/>
+    <disable_collisions link1="gripper_finger1_finger_tip_link" link2="gripper_finger2_finger_tip_link" reason="Never"/>
     <disable_collisions link1="gripper_finger1_finger_tip_link" link2="gripper_finger2_inner_knuckle_link" reason="Never"/>
     <disable_collisions link1="gripper_finger1_finger_tip_link" link2="gripper_finger2_knuckle_link" reason="Never"/>
     <disable_collisions link1="gripper_finger1_finger_tip_link" link2="wrist_1_link" reason="Never"/>
