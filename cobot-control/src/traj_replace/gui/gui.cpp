@@ -60,7 +60,7 @@ public:
 	TrajReplaceGui(QMainWindow *parent = nullptr) : QMainWindow(parent){
 		// Setting up communication (pub-sub)
 		nh_ = ros::NodeHandle();
-		exe_pub_ = nh_.advertise<std_msgs::Int8>("execute_traj", 1);
+		exe_pub_ = nh_.advertise<std_msgs::Int8>("traj_type", 1);
 		traj_pub_ = nh_.advertise<trajectory_msgs::JointTrajectory>(CONTROL_TOPIC, 1);
 
 		// populating messages with default values
