@@ -1,0 +1,2 @@
+simulation_control: '/pos_joint_traj_controller/follow_joint_trajectory/command'
+hardware_control: '/scaled_pos_joint_traj_controller/follow_joint_trajectory/command'
