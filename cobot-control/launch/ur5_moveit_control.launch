@@ -4,20 +4,11 @@
   <arg name="use_rviz" default="true" />
 
   <group if="$(arg only_sim)">
-    <!-- <include file="$(find ur5_ag95_moveit_config)/launch/demo.launch">
+    <include file="$(find ur5_ag95_moveit_config)/launch/demo.launch">
       <arg name="debug" default="$(arg debug)" />
-    </include> -->
+    </include>
     
-    <!-- We do not have a robot connected, so publish fake joint states -->
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
-
-    <node name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)" output="screen"/>  
-
-    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" >
-      <!-- <remap from="robot_description" to="my_robot_description" /> -->
-      <remap from="joint_states" to="my_joint_states" />
-    </node>
-    <node pkg="cobot-env" type="build_scene.py" name="scene_builder1" if="$(arg only_sim)"/>
+    <!-- <node pkg="cobot-env" type="build_scene.py" name="scene_builder1" if="$(arg only_sim)"/> -->
   </group>
 
   <group unless="$(arg only_sim)">
