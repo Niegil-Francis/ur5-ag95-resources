@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <launch>
 
+  <!-- By default, we are not in debug mode -->
+  <arg name="debug" default="false" />
+
   <!--Robot description and related parameter files -->
   <arg name="joint_limit_params" default="$(find ur_description)/config/ur5/joint_limits.yaml"/>
   <arg name="kinematics_params" default="$(find ur_description)/config/ur5/default_kinematics.yaml"/>
@@ -29,6 +32,23 @@
     <param name="publish_frequency" type="double" value="$(arg tf_pub_rate)" />
     <param name="tf_prefix" value="$(arg tf_prefix)" />
   </node>
+
+  <arg name="load_robot_description" default="false"/>
+
+  <!-- Run the main MoveIt executable without trajectory execution (we do not have controllers configured by default) -->
+  <include file="$(find ur5_ag95_moveit_config)/launch/move_group.launch">
+    <arg name="allow_trajectory_execution" value="true"/>
+    <arg name="fake_execution" value="false"/>
+    <arg name="info" value="true"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="load_robot_description" value="$(arg load_robot_description)"/>
+  </include>
+
+  <!-- Run Rviz and load the default config to see the state of the move_group node -->
+  <include file="$(find ur5_ag95_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="config" value="$(find ur5_ag95_moveit_config)/launch/moveit_practice.rviz"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
 
   <!-- Start the 'driver' (ie: Gazebo in this case) -->
 
@@ -71,4 +91,7 @@
   <!-- Load other controllers, but do not start them -->
   <node name="ros_control_stopped_spawner" pkg="controller_manager" type="spawner"
     args="--stopped $(arg stopped_controllers)" output="screen" respawn="false" />
+
+  <node pkg="cobot-env" type="build_scene.py" name="scene_builder1" if="$(arg only_sim)"/>
+  
 </launch>

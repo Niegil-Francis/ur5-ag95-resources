@@ -8,7 +8,7 @@
       <arg name="debug" default="$(arg debug)" />
     </include>
     
-    <!-- <node pkg="cobot-env" type="build_scene.py" name="scene_builder1" if="$(arg only_sim)"/> -->
+    <node pkg="cobot-env" type="build_scene.py" name="scene_builder1" if="$(arg only_sim)"/>
   </group>
 
   <group unless="$(arg only_sim)">

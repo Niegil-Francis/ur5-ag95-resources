@@ -100,7 +100,23 @@ private slots:
 			is_exe_msg_sent = false;
 		}
 		else{
-			ui.exeBtn->setText("Stop");
+			switch(exe_msg_.data){
+				case HOME:	traj_msg_.points[0].positions = std::vector<double>({0, -1.5708559195147913, 0, -1.5707481543170374, 0, 0});
+							traj_msg_.points[0].time_from_start = ros::Duration(2);
+							traj_msg_.header.stamp = ros::Time::now();
+
+							traj_pub_.publish(traj_msg_);
+							break;
+				case START_POSE: traj_msg_.points[0].positions = std::vector<double>({0.7854925394058228, -2.0945685545550745, 2.094480037689209,
+											-1.5707839171039026, -1.5714247862445276, -0.00031119981874638825});
+								traj_msg_.points[0].time_from_start = ros::Duration(2);
+								traj_msg_.header.stamp = ros::Time::now();
+
+								traj_pub_.publish(traj_msg_);
+								break;
+				default: ui.exeBtn->setText("Stop");
+						 is_exe_msg_sent = true;
+			}
 			
 			ui.homeRbtn->setAutoExclusive(false);
 			ui.startPoseRbtn->setAutoExclusive(false);
@@ -116,25 +132,8 @@ private slots:
 			ui.startPoseRbtn->setAutoExclusive(true);
 			ui.replaceTrajRbtn->setAutoExclusive(true);
 			ui.scaleVelRBtn->setAutoExclusive(true);
-
-			is_exe_msg_sent = true;
 		}
 
-		switch(exe_msg_.data){
-			case HOME:	traj_msg_.points[0].positions = std::vector<double>({0, -1.5708559195147913, 0, -1.5707481543170374, 0, 0});
-						traj_msg_.points[0].time_from_start = ros::Duration(2);
-						traj_msg_.header.stamp = ros::Time::now();
-
-						traj_pub_.publish(traj_msg_);
-						break;
-			case START_POSE: traj_msg_.points[0].positions = std::vector<double>({0.7854925394058228, -2.0945685545550745, 2.094480037689209,
-										-1.5707839171039026, -1.5714247862445276, -0.00031119981874638825});
-							traj_msg_.points[0].time_from_start = ros::Duration(2);
-							traj_msg_.header.stamp = ros::Time::now();
-
-							traj_pub_.publish(traj_msg_);
-							break;
-		}
 		exe_pub_.publish(exe_msg_);
 	}
 

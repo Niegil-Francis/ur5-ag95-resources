@@ -6,7 +6,6 @@ from rospkg import RosPack
 sys.path.insert(1, RosPack().get_path('cobot-control') + "/scripts/common/")
 from ur5control import UR5Control
 
-import signal
 import copy
 
 # ROS imports
@@ -19,9 +18,6 @@ from std_msgs.msg import Int8
 # misc imports
 import yaml
 
-def signal_handler(*args):
-	sys.exit()
-	
 class TrajectoryReplace(UR5Control):
 
 	def __init__(self, is_sim=True, planning_time=10, planner_id='RRT', z_safety_limit=0.01):
@@ -49,6 +45,10 @@ class TrajectoryReplace(UR5Control):
 		# initializing variables
 		self.traj_type = self.TT_STOP
 		self.traj_msg = JointTrajectory()
+		self.positions = []
+		self.velocities = []
+		self.accelerations = []
+		self.time_from_start = []
 
 		# publishers
 		if is_sim:
@@ -61,21 +61,55 @@ class TrajectoryReplace(UR5Control):
 
 		self.generate_traj_0()
 
-		self.traj_pub.publish(self.traj_msg)
-
 	def traj_type_callback(self, data):
 		self.traj_type = data.data
 
+	def execute_trajectory(self):
+		"""
+		Executes the trajectory one position after another
+		"""
+		num_points = len(self.positions)
+		new_point = JointTrajectoryPoint()
+
+		loop_rate = rospy.Rate(125)
+
+		k = 0
+
+		while not rospy.is_shutdown() and k != num_points-1:
+			# check if the current position is reached or not
+			if not self.is_within_tolerance(list(self.positions[k]), 
+											self.move_group.get_current_joint_values(),
+											0.001):
+				# for some reason, we need to keep on publishing this
+				# self.traj_msg.header.stamp = rospy.Time.now()
+				self.traj_pub.publish(self.traj_msg)
+			else:
+				k = k + 1			# publish the next set-point position
+				self.traj_msg.points.clear()
+
+				new_point.positions = self.positions[k]
+				new_point.velocities = self.velocities[k]
+				new_point.accelerations = self.accelerations[k]
+				new_point.time_from_start = self.time_from_start[k] - self.time_from_start[k-1]
+				self.traj_msg.points.append(new_point)
+				
+				self.traj_msg.header.stamp = rospy.Time.now()
+				self.traj_pub.publish(self.traj_msg)
+			loop_rate.sleep()
+
+		self.positions.clear()
+		self.time_from_start.clear()
+
 	def generate_traj_0(self):
 		"""
-			Populates the trajectory message with a default pre-defined 
-			trajectory. Should be called in the constructor
+		Obtain the trajectory positions with a default pre-defined 
+		trajectory. Should be called in the constructor.
 		"""
 		waypoints = []
 
 		wpose = self.move_group.get_current_pose().pose
-		wpose.position.z +=  0.1 
-		wpose.position.y +=  0.2
+		wpose.position.z +=  0.1
+		wpose.position.y +=  0.4
 		waypoints.append(copy.deepcopy(wpose))
 
 		wpose.position.x +=  0.2
@@ -83,56 +117,20 @@ class TrajectoryReplace(UR5Control):
 
 		(traj_0, _) = self.get_cartesian_trajectory(waypoints, 0.01)
 
-		self.traj_msg.header = traj_0.header
-		self.traj_msg.joint_names = traj_0.joint_names
+		self.traj_msg.joint_names = traj_0.joint_trajectory.joint_names
 
-		waypoint_num = len(traj_0.points)
+		waypoint_num = len(traj_0.joint_trajectory.points)
 
 		for i in range(0, waypoint_num):
-			point = JointTrajectoryPoint()
-			point.positions.append(traj_0.points[i].positions)
-			point.time_from_start = rospy.Duration(0.6)
-			self.traj_msg.points.append(point)
-			pass
-
-	# def _send_traj_to_manipulator(self, robo_traj):
-	# 	"""
-	# 	Sends the trajectory execution command to the manipulator and starts the timer.
-
-	# 	Parameters
-	# 	----------
-	# 	robo_traj : RobotTrajectory: The trajectory to be executed
-
-	# 	Returns
-	# 	-------
-	# 	True if the trajectory was executed without any interruption, else false.
-	# 	"""
-	# 	self.execution_start_time = rospy.get_rostime()
-	# 	return self.move_group.execute(robo_traj, wait=True)
-
-	# def execute_cartesian_traj_with_rand_wp(self):
-	# 	"""
-	# 	Searches for a random trajectory and executes it.
-	# 	Returns
-	# 	-------
-	# 	True if the trajectory was executed without any interruption, else false.
-	# 	"""
-		
-	# 	# obtaining moveit's trajectory
-	# 	(continuous_traj, fraction) = self.get_cartesian_trajectory(self.generate_waypoints_0(), 0.01)
-	# 	while(fraction < 0.3):
-	# 		(continuous_traj, fraction) = self.get_cartesian_trajectory(self.generate_waypoints_0(), 0.01)
-	# 	print("Obtained MoveIt's trajectory that is: ", str(fraction*100), " percent complete.")
-	# 	self.interr_traj.header = continuous_traj.joint_trajectory.header
-	# 	self.interr_traj.joint_names = continuous_traj.joint_trajectory.joint_names
-
-	# 	# intiallly add all points to the trajectory
-	# 	self.interr_traj.points = continuous_traj.joint_trajectory.points
-	# 	self.interr_robo_traj.joint_trajectory = self.interr_traj
-	# 	self.new_traj_planned = True
-	# 	return self._send_traj_to_manipulator(self.interr_robo_traj)
+			self.positions.append(traj_0.joint_trajectory.points[i].positions)
+			self.time_from_start.append(traj_0.joint_trajectory.points[i].time_from_start)
+			self.velocities.append(traj_0.joint_trajectory.points[i].velocities)
+			self.accelerations.append(traj_0.joint_trajectory.points[i].accelerations)
 
 if __name__ == '__main__':
-	signal.signal(signal.SIGINT, signal_handler)
-
 	ur5 = TrajectoryReplace(is_sim=True)
+
+	ur5.execute_trajectory()
+
+	rospy.loginfo("Press CTRL+C to exit node")
+	rospy.spin()
