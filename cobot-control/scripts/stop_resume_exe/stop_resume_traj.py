@@ -124,7 +124,7 @@ class InterruptableTrajectory(UR5Control):
 			self.is_started_pub.publish(temp_started)
 			self.is_stopped_pub.publish(temp_stopped)
 			self.is_resumed_pub.publish(temp_resumed)
-			# self.move_group.stop()
+			self.move_group.stop()
 		if not(self.traj_completed):
 			self.ERRP[-1]=1	
 		# print(self.ERRP)
@@ -167,12 +167,12 @@ class InterruptableTrajectory(UR5Control):
 			sample,_ = inlet.pull_sample()
 			current=sample[3]
 			if current!=prev:
-				if current:
-					self.ext_trigger_stop_callback(True)
-				elif not(current) and self.is_homed:
+				if not(current) and self.is_homed:
 					self.ext_trigger_start_callback(True)
-				elif not(current) and self.new_traj_planned==False:
-					self.ext_trigger_resume_callback(True)
+				elif not(current):
+					self.ext_trigger_stop_callback(True)
+				# elif not(current) and self.new_traj_planned==False:
+				# 	self.ext_trigger_resume_callback(True)
 			prev=current
 			
 			
@@ -275,16 +275,16 @@ class InterruptableTrajectory(UR5Control):
 						self.new_traj_planned = False
 					self.flag_moved_to_home = 0
 
-			elif not(self.new_traj_planned) and self.is_resumed:
-				if (self._send_traj_to_manipulator(self.interr_robo_traj)):
-					rospy.loginfo("Trajectory execution completed!")
-					self.is_started=False
-					self.new_traj_planned=True
-					self.traj_completed=True
-				else:
-					self.store_resumed_cartesian_path()
-					self.new_traj_planned = False
-					self.flag_moved_to_home = 0
+			# elif not(self.new_traj_planned) and self.is_resumed:
+			# 	if (self._send_traj_to_manipulator(self.interr_robo_traj)):
+			# 		rospy.loginfo("Trajectory execution completed!")
+			# 		self.is_started=False
+			# 		self.new_traj_planned=True
+			# 		self.traj_completed=True
+			# 	else:
+			# 		self.store_resumed_cartesian_path()
+			# 		self.new_traj_planned = False
+			# 		self.flag_moved_to_home = 0
 
 			elif self.is_homed and self.flag_moved_to_home==0:
 				
