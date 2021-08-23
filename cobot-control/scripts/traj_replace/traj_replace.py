@@ -51,6 +51,7 @@ class TrajectoryReplace(UR5Control):
 		self.time_from_start = []
 
 		# publishers
+		self.is_sim = is_sim
 		if is_sim:
 			self.traj_pub = rospy.Publisher(self.topics['simulation_control'], JointTrajectory, queue_size=1)
 		else:
@@ -73,13 +74,16 @@ class TrajectoryReplace(UR5Control):
 
 		loop_rate = rospy.Rate(125)
 
-		k = 0
+		k = 0 					# iteration variable
+		joint_tolerance = 0.1	# set-point tolerance at which next set-point is sent
+		if self.is_sim:
+			joint_tolerance = 0.001
 
 		while not rospy.is_shutdown() and k != num_points-1:
 			# check if the current position is reached or not
 			if not self.is_within_tolerance(list(self.positions[k]), 
 											self.move_group.get_current_joint_values(),
-											0.001):
+											joint_tolerance):
 				# for some reason, we need to keep on publishing this
 				# self.traj_msg.header.stamp = rospy.Time.now()
 				self.traj_pub.publish(self.traj_msg)
@@ -90,7 +94,10 @@ class TrajectoryReplace(UR5Control):
 				new_point.positions = self.positions[k]
 				new_point.velocities = self.velocities[k]
 				new_point.accelerations = self.accelerations[k]
-				new_point.time_from_start = self.time_from_start[k] - self.time_from_start[k-1]
+				if self.is_sim:
+					new_point.time_from_start = self.time_from_start[k] - self.time_from_start[k-1]
+				else:
+					new_point.time_from_start = self.time_from_start[k] - self.time_from_start[k-1] + rospy.Duration(0.25)
 				self.traj_msg.points.append(new_point)
 				
 				self.traj_msg.header.stamp = rospy.Time.now()
@@ -108,14 +115,24 @@ class TrajectoryReplace(UR5Control):
 		waypoints = []
 
 		wpose = self.move_group.get_current_pose().pose
-		wpose.position.z +=  0.1
-		wpose.position.y +=  0.4
+
+		wpose.position.z +=  0.3
+		waypoints.append(copy.deepcopy(wpose))
+		wpose.position.y +=  0.2
+		waypoints.append(copy.deepcopy(wpose))
+		wpose.position.x +=  0.1  
+		waypoints.append(copy.deepcopy(wpose))
+		
+		wpose.position.z -=  0.3
+		waypoints.append(copy.deepcopy(wpose))
+		wpose.position.y -=  0.2
+		waypoints.append(copy.deepcopy(wpose))
+		wpose.position.x -=  0.1  
 		waypoints.append(copy.deepcopy(wpose))
 
-		wpose.position.x +=  0.2
-		waypoints.append(copy.deepcopy(wpose))
+		(traj_0, fraction) = self.get_cartesian_trajectory(waypoints, 0.01)
 
-		(traj_0, _) = self.get_cartesian_trajectory(waypoints, 0.01)
+		rospy.loginfo("Fraction of trajectory planned: " + str(fraction))
 
 		self.traj_msg.joint_names = traj_0.joint_trajectory.joint_names
 
