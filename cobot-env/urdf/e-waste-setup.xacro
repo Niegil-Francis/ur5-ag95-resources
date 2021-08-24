@@ -1,0 +1,1327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="e_waste_setup" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <link name="world"/>
+  <joint name="fixed" type="fixed">
+    <parent
+      link="world" />
+    <child
+      link="base_link" />
+  </joint>
+
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-2.27534718783068E-16 8.01059823887658E-17 -0.01"
+        rpy="0 0 0" />
+      <mass
+        value="12.33232" />
+      <inertia
+        ixx="0.851443926666666"
+        ixy="-1.92334740726589E-16"
+        ixz="1.1776717277728E-32"
+        iyy="1.50505688666667"
+        iyz="5.20838413345425E-17"
+        izz="2.35567865866667" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="left_leg">
+    <inertial>
+      <origin
+        xyz="1.1102E-16 0.28963 -4.1633E-17"
+        rpy="0 0 0" />
+      <mass
+        value="45.883" />
+      <inertia
+        ixx="4.3912"
+        ixy="4.2306E-18"
+        ixz="2.342E-17"
+        iyy="0.47274"
+        iyz="-3.1455E-16"
+        izz="3.9416" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/left_leg.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.64706 0.61961 0.58824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/left_leg.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_leg_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.585 -0.065 -0.87"
+      rpy="1.5708 0 3.1416" />
+    <parent
+      link="base_link" />
+    <child
+      link="left_leg" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="right_leg">
+    <inertial>
+      <origin
+        xyz="0 0.28963 -2.7756E-17"
+        rpy="0 0 0" />
+      <mass
+        value="45.883" />
+      <inertia
+        ixx="4.3912"
+        ixy="4.1279E-17"
+        ixz="3.752E-17"
+        iyy="0.47274"
+        iyz="-4.5768E-16"
+        izz="3.9416" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/right_leg.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.64706 0.61961 0.58824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/right_leg.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_leg_jnt"
+    type="fixed">
+    <origin
+      xyz="0.585 -0.065 -0.87"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_leg" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="bin_a">
+    <inertial>
+      <origin
+        xyz="0 0.0112844226784705 5.55111512312578E-17"
+        rpy="0 0 0" />
+      <mass
+        value="0.25992864" />
+      <inertia
+        ixx="0.00200313934714515"
+        ixy="-1.45538735552301E-19"
+        ixz="7.71238174601565E-19"
+        iyy="0.00460094577504"
+        iyz="-4.25841131738558E-19"
+        izz="0.00271764485914515" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/bin_a.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/bin_a.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="bin_a_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.405 -0.305 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="bin_a" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="bin_b">
+    <inertial>
+      <origin
+        xyz="5.5511E-17 0.011284 -2.6888E-17"
+        rpy="0 0 0" />
+      <mass
+        value="0.25993" />
+      <inertia
+        ixx="0.0020031"
+        ixy="-4.5899E-19"
+        ixz="-3.3994E-18"
+        iyy="0.0046009"
+        iyz="9.8582E-21"
+        izz="0.0027176" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/bin_b.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/bin_b.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="bin_b_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.405 0.005 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="bin_b" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="bin_c">
+    <inertial>
+      <origin
+        xyz="0 0.011284 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.25993" />
+      <inertia
+        ixx="0.0020031"
+        ixy="2.1426E-19"
+        ixz="-2.8377E-18"
+        iyy="0.0046009"
+        iyz="1.0208E-19"
+        izz="0.0027176" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/bin_c.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/bin_c.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="bin_c_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.405 0.305 0"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="bin_c" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="task_board">
+    <inertial>
+      <origin
+        xyz="1.56775612099661E-05 0.00999520759244381 3.89394773939178E-05"
+        rpy="0 0 0" />
+      <mass
+        value="5.18406234418" />
+      <inertia
+        ixx="0.0531090484160932"
+        ixy="-2.03573132300552E-07"
+        ixz="-7.6312709893416E-06"
+        iyy="0.264638527283571"
+        iyz="-5.05629113960154E-07"
+        izz="0.211875248413227" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/task_board.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/task_board.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="task_board_jnt"
+    type="fixed">
+    <origin
+      xyz="0.4 0.025 0"
+      rpy="1.5708 0 1.5708" />
+    <parent
+      link="base_link" />
+    <child
+      link="task_board" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="eth1">
+    <inertial>
+      <origin
+        xyz="0.10055 0.11161 0.060519"
+        rpy="0 0 0" />
+      <mass
+        value="0.039635" />
+      <inertia
+        ixx="0.00025452"
+        ixy="-0.00022224"
+        ixz="0.00023346"
+        iyy="0.0010797"
+        iyz="1.5467E-05"
+        izz="0.0010264" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/eth1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/eth1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="eth1_jnt"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="eth1" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="rpi1">
+    <inertial>
+      <origin
+        xyz="-0.10187 -0.0025507 0.089346"
+        rpy="0 0 0" />
+      <mass
+        value="0.019104" />
+      <inertia
+        ixx="2.1867E-06"
+        ixy="-9.5286E-09"
+        ixz="3.3391E-09"
+        iyy="4.7411E-06"
+        iyz="-4.6598E-11"
+        izz="6.6227E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/rpi1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/rpi1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rpi1_jnt"
+    type="fixed">
+    <origin
+      xyz="0.2 -0.0642 0.065496"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="rpi1" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="driver1">
+    <inertial>
+      <origin
+        xyz="0.0391037186014345 0.0177493702144016 0.00746284775742702"
+        rpy="0 0 0" />
+      <mass
+        value="0.0141846304765657" />
+      <inertia
+        ixx="1.09003906439677E-06"
+        ixy="-7.69351380106994E-12"
+        ixz="-3.31365513227938E-12"
+        iyy="3.17295573133601E-06"
+        iyz="-1.7008758532799E-07"
+        izz="4.06249013858215E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/driver1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/driver1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="driver1_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.230036425376044 0.02 0"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="driver1" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="aa1">
+    <inertial>
+      <origin
+        xyz="0.018557862835183 -0.000121926064930666 -0.000517703493840779"
+        rpy="0 0 0" />
+      <mass
+        value="0.0502827308889202" />
+      <inertia
+        ixx="8.73415409556535E-06"
+        ixy="-1.08889572049972E-07"
+        ixz="2.56118177182122E-08"
+        iyy="1.59562256654187E-05"
+        iyz="7.72992147187211E-09"
+        izz="2.30928964368139E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/aa1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/aa1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="aa1_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.32077 0.02 0"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="aa1" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="lipo1">
+    <inertial>
+      <origin
+        xyz="-0.2827 0.068444 -0.0038121"
+        rpy="0 0 0" />
+      <mass
+        value="0.27962" />
+      <inertia
+        ixx="0.00052842"
+        ixy="4.6369E-06"
+        ixz="-2.3374E-07"
+        iyy="9.9069E-05"
+        iyz="7.1635E-06"
+        izz="0.00051135" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/lipo1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.10196 0.10196 0.10196 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/lipo1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lipo1_jnt"
+    type="fixed">
+    <origin
+      xyz="0.276535295681903 0.041 -0.111396197423314"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="lipo1" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="rpi2">
+    <inertial>
+      <origin
+        xyz="-0.101867392051806 0.00255073854918586 -0.0893460077291222"
+        rpy="0 0 0" />
+      <mass
+        value="0.0191036927351196" />
+      <inertia
+        ixx="2.18672019244024E-06"
+        ixy="9.52863981035414E-09"
+        ixz="-3.33911586989025E-09"
+        iyy="4.74111526681898E-06"
+        iyz="-4.65980690543594E-11"
+        izz="6.62273252258723E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/rpi2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/rpi2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rpi2_jnt"
+    type="fixed">
+    <origin
+      xyz="0.05 -0.05 -0.04"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="rpi2" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="rpi3">
+    <inertial>
+      <origin
+        xyz="-0.101867391978507 -0.0025507385337428 0.0893460077229004"
+        rpy="0 0 0" />
+      <mass
+        value="0.0191036928011887" />
+      <inertia
+        ixx="2.18672019265067E-06"
+        ixy="-9.52863979708248E-09"
+        ixz="3.33911567126661E-09"
+        iyy="4.74111526790639E-06"
+        iyz="-4.65980583613383E-11"
+        izz="6.62273252346418E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/rpi3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/rpi3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rpi3_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.264882462187589 -0.0642000000000001 0.09"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="rpi3" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="rpi4">
+    <inertial>
+      <origin
+        xyz="-0.10187 -0.0025507 0.089346"
+        rpy="0 0 0" />
+      <mass
+        value="0.019104" />
+      <inertia
+        ixx="2.1867E-06"
+        ixy="-9.5286E-09"
+        ixz="3.3391E-09"
+        iyy="4.7411E-06"
+        iyz="-4.6598E-11"
+        izz="6.6227E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/rpi4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/rpi4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rpi4_jnt"
+    type="fixed">
+    <origin
+      xyz="0.25 -0.0642 0.16"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="rpi4" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="driver2">
+    <inertial>
+      <origin
+        xyz="0.039103718701288 -0.0188156898793271 -0.00408705838154128"
+        rpy="0 0 0" />
+      <mass
+        value="0.0141846304765657" />
+      <inertia
+        ixx="1.09003906439668E-06"
+        ixy="8.16510743756263E-12"
+        ixz="1.80956103810729E-12"
+        iyy="3.14154478788422E-06"
+        iyz="1.42279643968492E-09"
+        izz="4.09390108203403E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/driver2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/driver2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="driver2_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.0224014098782908 0.02 0.146423442762094"
+      rpy="-1.5707963267949 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="driver2" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="driver3">
+    <inertial>
+      <origin
+        xyz="0.039104 0.018816 0.0040871"
+        rpy="0 0 0" />
+      <mass
+        value="0.014185" />
+      <inertia
+        ixx="1.09E-06"
+        ixy="-8.1651E-12"
+        ixz="-1.8096E-12"
+        iyy="3.1415E-06"
+        iyz="1.4228E-09"
+        izz="4.0939E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/driver3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/driver3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="driver3_jnt"
+    type="fixed">
+    <origin
+      xyz="0.180783266486612 0.018 -0.06"
+      rpy="-1.5707963267949 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="driver3" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="driver4">
+    <inertial>
+      <origin
+        xyz="0.0391037187012879 -0.0188156898793274 -0.0040870583815413"
+        rpy="0 0 0" />
+      <mass
+        value="0.0141846304765657" />
+      <inertia
+        ixx="1.09003906439668E-06"
+        ixy="8.16510743772672E-12"
+        ixz="1.80956103808569E-12"
+        iyy="3.14154478788422E-06"
+        iyz="1.42279643968499E-09"
+        izz="4.09390108203403E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/driver4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/driver4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="driver4_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.35 0.02 0.15"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="driver4" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="driver5">
+    <inertial>
+      <origin
+        xyz="0.0391037187012883 0.0188156898793273 0.00408705838154133"
+        rpy="0 0 0" />
+      <mass
+        value="0.0141846304765657" />
+      <inertia
+        ixx="1.09003906439668E-06"
+        ixy="-8.16510743787875E-12"
+        ixz="-1.80956104013877E-12"
+        iyy="3.14154478788422E-06"
+        iyz="1.4227964396849E-09"
+        izz="4.09390108203402E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/driver5.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/driver5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="driver5_jnt"
+    type="fixed">
+    <origin
+      xyz="0.12 0.02 0.0176332169061194"
+      rpy="-1.5707963267949 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="driver5" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="aa2">
+    <inertial>
+      <origin
+        xyz="0.0185578628351992 -0.000121926064930833 -0.000517703493830686"
+        rpy="0 0 0" />
+      <mass
+        value="0.0502827308889205" />
+      <inertia
+        ixx="8.73415427426008E-06"
+        ixy="-1.08889572039755E-07"
+        ixz="2.56118093171292E-08"
+        iyy="1.59562258409576E-05"
+        iyz="7.72992147520294E-09"
+        izz="2.30928964336584E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/aa2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/aa2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="aa2_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.091779 0.026099 -0.031948"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="aa2" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="aa3">
+    <inertial>
+      <origin
+        xyz="0.0185578628351827 -0.000121926064930944 -0.000517703493840511"
+        rpy="0 0 0" />
+      <mass
+        value="0.050282730888921" />
+      <inertia
+        ixx="8.73415379615111E-06"
+        ixy="-1.08889572050157E-07"
+        ixz="2.56118177237934E-08"
+        iyy="1.59562253657716E-05"
+        iyz="7.72992148056996E-09"
+        izz="2.30928964365813E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/aa3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/aa3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="aa3_jnt"
+    type="fixed">
+    <origin
+      xyz="0.091631 0.026099 0.10011"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="aa3" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="eth2">
+    <inertial>
+      <origin
+        xyz="0.0313179987599473 0.144192125870054 -0.03719120540662"
+        rpy="0 0 0" />
+      <mass
+        value="0.034123089802374" />
+      <inertia
+        ixx="0.000380155429208504"
+        ixy="3.82645604337696E-05"
+        ixz="-0.000180241175932254"
+        iyy="0.000426936141381784"
+        iyz="5.31337969648835E-05"
+        izz="0.000367258548394805" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/eth2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/eth2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="eth2_jnt"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="eth2" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="eth3">
+    <inertial>
+      <origin
+        xyz="-0.0176323163522173 0.142175268079944 -0.0406857440096496"
+        rpy="0 0 0" />
+      <mass
+        value="0.0398161724166064" />
+      <inertia
+        ixx="0.000209825598089416"
+        ixy="-0.000127380714639605"
+        ixz="0.000160969205623782"
+        iyy="0.000796101674500041"
+        iyz="-1.65541220683897E-05"
+        izz="0.000830139720625339" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/eth3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/eth3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="eth3_jnt"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="eth3" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="lipo2">
+    <inertial>
+      <origin
+        xyz="-0.00316937502169912 -0.0248120514892203 9.10294168822226E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.279620121159866" />
+      <inertia
+        ixx="9.90687913438933E-05"
+        ixy="7.16346579253348E-06"
+        ixz="4.63688989267059E-06"
+        iyy="0.000511351331602952"
+        iyz="-2.33737129095967E-07"
+        izz="0.000528418876875782" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/lipo2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.101960784313725 0.101960784313725 0.101960784313725 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/lipo2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lipo2_jnt"
+    type="fixed">
+    <origin
+      xyz="0.27654 0.041 -0.1114"
+      rpy="1.5708 0 0" />
+    <parent
+      link="task_board" />
+    <child
+      link="lipo2" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="toolkit">
+    <inertial>
+      <origin
+        xyz="-4.2616E-06 0.085661 -6.2284E-06"
+        rpy="0 0 0" />
+      <mass
+        value="53.702" />
+      <inertia
+        ixx="0.20186"
+        ixy="3.2889E-05"
+        ixz="-5.2433E-07"
+        iyy="0.50671"
+        iyz="3.3215E-05"
+        izz="0.53938" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/toolkit.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.64706 0.61961 0.58824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/e-waste-setup/toolkit.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="toolkit_jnt"
+    type="fixed">
+    <origin
+      xyz="-0.0031875 0.33334 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="toolkit" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+  <xacro:include filename="$(find cobot-env)/urdf/e-waste.colors.xacro" />
+
+</robot>

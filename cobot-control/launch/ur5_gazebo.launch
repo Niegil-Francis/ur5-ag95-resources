@@ -25,7 +25,7 @@
 
   <!-- Load urdf on the parameter server -->
   <param name="robot_description" command="$(find xacro)/xacro '$(find cobot-description)/urdf/ur5.xacro'"/>
-  <param name="table_description" command="$(find xacro)/xacro '$(find cobot-env)/urdf/table.xacro'"/>
+  <param name="table_description" command="$(find xacro)/xacro '$(find cobot-env)/urdf/e-waste-setup.xacro'"/>
 
   <!-- Robot state publisher -->
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">

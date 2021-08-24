@@ -8,7 +8,7 @@
 	<arg name="paused" default="true"/>
 	<arg name="use_sim_time" default="true"/>
 	<arg name="verbose" default="true"/>
-	<arg name="world_name" value="$(find cobot-env)/worlds/industry.world" if="$(eval arg('environment')=='industry')"/>
+	<arg name="world_name" value="$(find cobot-env)/worlds/actor_example.world" if="$(eval arg('environment')=='industry')"/>
 
 	<!-- Launching the world -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -22,7 +22,7 @@
 	
 	<group ns="industry" if="$(eval arg('environment')=='industry')">
     	<param name="table_desc" 
-		 	command="$(find xacro)/xacro $(find cobot-env)/urdf/table.xacro" />
+		 	command="$(find xacro)/xacro $(find cobot-env)/urdf/e-waste-setup.xacro" />
 
 		<node name="spawn_table" 
 			pkg="gazebo_ros"

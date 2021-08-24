@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <gazebo reference="base_link">
+    <material> Gazebo/WoodPallet </material>
+  </gazebo>
+
+  <gazebo reference="left_leg">
+    <material> Gazebo/Black </material>
+  </gazebo>
+
+  <gazebo reference="right_leg">
+    <material> Gazebo/Black </material>
+  </gazebo>
+  
+  <gazebo reference="bin_a">
+    <material> Gazebo/Red </material>
+  </gazebo>
+
+  <gazebo reference="bin_b">
+    <material> Gazebo/Blue </material>
+  </gazebo>
+
+  <gazebo reference="bin_c">
+    <material> Gazebo/Green </material>
+  </gazebo>
+
+  <gazebo reference="lipo1">
+    <material> Gazebo/Turquoise </material>
+  </gazebo>
+
+  <gazebo reference="lipo2">
+    <material> Gazebo/Turquoise </material>
+  </gazebo>
+
+  <gazebo reference="eth1">
+    <material> Gazebo/DarkGrey </material>
+  </gazebo>
+
+  <gazebo reference="eth2">
+    <material> Gazebo/DarkGrey </material>
+  </gazebo>
+
+  <gazebo reference="eth3">
+    <material> Gazebo/DarkGrey </material>
+  </gazebo>
+
+  <gazebo reference="rpi1">
+    <material> Gazebo/SkyBlue </material>
+  </gazebo>
+
+  <gazebo reference="rpi2">
+    <material> Gazebo/SkyBlue </material>
+  </gazebo>
+
+  <gazebo reference="rpi3">
+    <material> Gazebo/SkyBlue </material>
+  </gazebo>
+
+  <gazebo reference="rpi4">
+    <material> Gazebo/SkyBlue </material>
+  </gazebo>
+
+  <gazebo reference="driver1">
+    <material> Gazebo/ZincYellow </material>
+  </gazebo>
+
+  <gazebo reference="driver2">
+    <material> Gazebo/ZincYellow </material>
+  </gazebo>
+
+  <gazebo reference="driver3">
+    <material> Gazebo/ZincYellow </material>
+  </gazebo>
+
+  <gazebo reference="driver4">
+    <material> Gazebo/ZincYellow </material>
+  </gazebo>
+
+  <gazebo reference="driver5">
+    <material> Gazebo/ZincYellow </material>
+  </gazebo>
+
+  <gazebo reference="aa1">
+    <material> Gazebo/Grey </material>
+  </gazebo>
+
+  <gazebo reference="aa2">
+    <material> Gazebo/Grey </material>
+  </gazebo>
+
+  <gazebo reference="aa3">
+    <material> Gazebo/Grey </material>
+  </gazebo>
+
+  <gazebo reference="aa4">
+    <material> Gazebo/Grey </material>
+  </gazebo>
+
+  <gazebo reference="toolkit">
+    <material> Gazebo/Orange </material>
+  </gazebo>
+
+  <gazebo>
+    <static> 1 </static>
+  </gazebo>
+
+</robot>
