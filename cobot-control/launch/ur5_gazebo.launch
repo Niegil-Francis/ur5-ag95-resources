@@ -92,6 +92,6 @@
   <node name="ros_control_stopped_spawner" pkg="controller_manager" type="spawner"
     args="--stopped $(arg stopped_controllers)" output="screen" respawn="false" />
 
-  <node pkg="cobot-env" type="build_scene.py" name="scene_builder1" if="$(arg only_sim)"/>
+  <node pkg="cobot-env" type="build_scene.py" name="scene_builder1"/>
   
 </launch>
