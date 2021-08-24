@@ -39,14 +39,15 @@ import numpy as np
 # importing process
 from multiprocessing import Process
 import time
+import datetime
 
 
 def signal_handler(*args):
 	print("Writing to file")
 	with open("ERRP.txt", "w") as f:
-		for ERRP in ur5.ERRP:
+		for i,ERRP in enumerate(ur5.ERRP):
 			print(ERRP)
-			f.write(str(ERRP) +"\n")	
+			f.write(str(ERRP) + " " + str(ur5.timestamp[i])+"\n")	
 		exit()
 	
 
@@ -61,6 +62,7 @@ class InterruptableTrajectory(UR5Control):
 		self.new_traj_planned = False
 
 		self.ERRP=list()
+		self.timestamp=list()
 
 		self.traj_completed=False
 
@@ -127,6 +129,7 @@ class InterruptableTrajectory(UR5Control):
 			self.move_group.stop()
 		if not(self.traj_completed):
 			self.ERRP[-1]=1	
+			self.timestamp[-1]=datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 		# print(self.ERRP)
 
 	def ext_trigger_resume_callback(self, data):
@@ -141,7 +144,6 @@ class InterruptableTrajectory(UR5Control):
 			self.is_resumed_pub.publish(temp_resumed)
 
 	def ext_trigger_start_callback(self, data):
-		self.ERRP.append(0)
 		# print(self.ERRP)
 		temp_homed=Bool()
 		temp_started=Bool()
@@ -150,6 +152,9 @@ class InterruptableTrajectory(UR5Control):
 			temp_homed.data= False
 			self.is_started_pub.publish(temp_started)
 			self.is_homed_pub.publish(temp_homed)
+			self.ERRP.append(0)
+			self.timestamp.append(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
+			
 
 
 	def lsl_streaming(self):
