@@ -10,7 +10,7 @@ Contains files related to controlling the cobot. It is the main ROS package from
 
 2. 
     ```bash
-    roslaunch cobot-control ur5_moveit_control.launch
+    roslaunch cobot-control ur5_moveit_control.launch only_sim:=false
     ```
 
 ### Basic picking and placing
@@ -28,6 +28,23 @@ Contains files related to controlling the cobot. It is the main ROS package from
     ```bash
     rosrun cobot-control adv_pick_place.py
     ```
+
+### Testing on simulation (only RViz)
+```bash
+roslaunch cobot-control ur5_moveit_control.launch only_sim:=true
+```
+
+### Testing on simulation (Rviz + Gazebo)
+1. For UR5 on empty table scene:
+    ```bash
+    roslaunch cobot-control ur5_gazebo.launch scene:=empty_table
+    ```
+
+2. For the E-waste setup scene:
+    ```bash
+    roslaunch cobot-control ur5_gazebo.launch scene:=e_waste
+    ```
+
 
 <br/>
 

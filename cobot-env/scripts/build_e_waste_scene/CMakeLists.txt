@@ -1,0 +1,1 @@
+catkin_install_python(PROGRAMS build_e_waste_scene.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
