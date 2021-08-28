@@ -26,7 +26,9 @@
 			</inertial>
 		</link>
 		<gazebo reference="gripper_base_link">
-			
+			<material>
+				Gazebo/Black
+			</material>
 			<mu1>
 				100000
 			</mu1>
@@ -84,6 +86,9 @@
 			</inertial>
 		</link>
 		<gazebo reference="gripper_finger1_knuckle_link">
+			<material>
+				Gazebo/DarkGrey
+			</material>
 			<mu1>
 				100000
 			</mu1>
@@ -118,7 +123,9 @@
 			</inertial>
 		</link>
 		<gazebo reference="gripper_finger2_knuckle_link">
-			
+			<material>
+				Gazebo/DarkGrey
+			</material>
 			<mu1>
 				100000
 			</mu1>
@@ -169,7 +176,9 @@
 			</inertial>
 		</link>
 		<gazebo reference="gripper_finger1_finger_link">
-			
+			<material>
+				Gazebo/Grey
+			</material>
 			<mu1>
 				100000
 			</mu1>
@@ -204,7 +213,9 @@
 			</inertial>
 		</link>
 		<gazebo reference="gripper_finger2_finger_link">
-			
+			<material>
+				Gazebo/Grey
+			</material>
 			<mu1>
 				100000
 			</mu1>
@@ -255,7 +266,9 @@
 			</inertial>
 		</link>
 		<gazebo reference="gripper_finger1_inner_knuckle_link">
-			
+			<material>
+				Gazebo/DarkGrey
+			</material>
 			<mu1>
 				100000
 			</mu1>
@@ -290,7 +303,9 @@
 			</inertial>
 		</link>
 		<gazebo reference="gripper_finger2_inner_knuckle_link">
-			
+			<material>
+				Gazebo/DarkGrey
+			</material>
 			<mu1>
 				100000
 			</mu1>
@@ -341,7 +356,9 @@
 			</inertial>
 		</link>
 		<gazebo reference="gripper_finger1_finger_tip_link">
-			
+			<material>
+				Gazebo/Grey
+			</material>
 			<mu1>
 				100000
 			</mu1>
@@ -376,7 +393,9 @@
 			</inertial>
 		</link>
 		<gazebo reference="gripper_finger2_finger_tip_link">
-			
+			<material>
+				Gazebo/Grey
+			</material>
 			<mu1>
 				100000
 			</mu1>

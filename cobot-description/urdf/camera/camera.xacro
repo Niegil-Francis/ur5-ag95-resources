@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
   <xacro:macro name="camera" params="origin_offset origin_angle camera_parent">
 
@@ -25,6 +26,9 @@
     </link>
 
     <gazebo reference="camera_mount_link">
+      <material>
+				Gazebo/Black
+			</material>
       <implicitSpringDamper>1</implicitSpringDamper>
       <mu1>100000</mu1>
       <mu2>100000</mu2>
