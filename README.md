@@ -28,6 +28,7 @@ pip install -r requirements.txt
 3. [cobot-env](./cobot-env)
 4. [ur5_ag95_moveit_config](./ur5_ag95_moveit_config)
 5. [MoveIt installation instructions](./cobot-description/README.md#moveit-installation)
+6. [Quick Reference Commands](./docs/quick_reference_cmds.md)
 
 [cobot-control]: ./cobot-control/README.md
 [cobot-description]: ./cobot-description/README.md

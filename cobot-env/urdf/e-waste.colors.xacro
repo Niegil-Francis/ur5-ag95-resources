@@ -98,7 +98,7 @@
   </gazebo>
 
   <gazebo reference="toolkit">
-    <material> Gazebo/Orange </material>
+    <material> Gazebo/Purple </material>
   </gazebo>
 
   <gazebo>

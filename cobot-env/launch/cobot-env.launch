@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
-	<arg name="environment" default="industry"/>
-
+	<arg name="scene" default="e_waste"/>
 	<arg name="debug" default="false"/>
 	<arg name="gui" default="true"/>
 	<arg name="paused" default="true"/>
 	<arg name="use_sim_time" default="true"/>
 	<arg name="verbose" default="true"/>
-	<arg name="world_name" value="$(find cobot-env)/worlds/actor_example.world" if="$(eval arg('environment')=='industry')"/>
+	<arg name="world_name" default="$(find cobot-env)/worlds/custom_empty.world"/>
 
 	<!-- Launching the world -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -20,16 +19,40 @@
 		<arg name="verbose" value="$(arg verbose)"/>
 	</include>
 	
-	<group ns="industry" if="$(eval arg('environment')=='industry')">
-    	<param name="table_desc" 
-		 	command="$(find xacro)/xacro $(find cobot-env)/urdf/e-waste-setup.xacro" />
+	<!-- spawn ur5 in home position -->
+	<param name="robot_description" command="$(find xacro)/xacro '$(find cobot-description)/urdf/ur5.xacro'"/>
+	<node name="spawn_ur5_model" pkg="gazebo_ros" type="spawn_model"
+		  args="
+				-urdf
+				-param robot_description
+				-model ur5
+				-J shoulder_lift_joint -1.5708
+				-J wrist_1_joint -1.5708
+				-z 0.938"
+			output="screen" respawn="false" />
 
-		<node name="spawn_table" 
-			pkg="gazebo_ros"
-			type="spawn_model" 
-			respawn="false"
-			output="screen"
-			args="-urdf -model table -param table_desc -z 0.93"/>
-	</group>
+	<!-- spawn human_drone -->
+	<param name="human_drone_desc" 
+		command="$(find xacro)/xacro $(find cobot-env)/urdf/human_drone.xacro" />
+	<node name="spawn_human_drone" 
+		pkg="gazebo_ros"
+		type="spawn_model" 
+		respawn="false"
+		output="screen"
+		args="-urdf -model human_drone -param human_drone_desc -x 0.6 -y 0.8"/>
+	
+	<!-- spawn table -->
+	<param  name="table_description" 
+          command="$(find xacro)/xacro '$(find cobot-env)/urdf/e-waste-setup.xacro'" 
+          if="$(eval arg('scene')=='e_waste')"/>
+  	<param  name="table_description" 
+          command="$(find xacro)/xacro '$(find cobot-env)/urdf/table.xacro'" 
+          if="$(eval arg('scene')=='empty_table')"/>
+	<node name="spawn_table" 
+		pkg="gazebo_ros"
+		type="spawn_model" 
+		respawn="false"
+		output="screen"
+		args="-urdf -model table -param table_description -z 0.93"/>
 	
 </launch>

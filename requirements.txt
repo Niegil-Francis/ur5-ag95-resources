@@ -244,3 +244,4 @@ wstool==0.1.18
 xacro==1.14.8
 xkit==0.0.0
 zope.interface==4.7.1
+getch==1.0
