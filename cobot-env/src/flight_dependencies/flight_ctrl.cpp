@@ -1,13 +1,12 @@
-#include "viman.h"
+#include "flight_ctrl.h"
 
 void Viman::initROSVars(ros::NodeHandle& node){
 	isFlying = false;
 	
-	pubTakeOff = node.advertise<std_msgs::Empty>("/viman/takeoff",1024);
-    pubLand = node.advertise<std_msgs::Empty>("/viman/land",1024);
-    pubReset = node.advertise<std_msgs::Empty>("/viman/reset",1024);
-    pubCmd = node.advertise<geometry_msgs::Twist>("/cmd_vel",1024); 
-		
+	pubTakeOff = node.advertise<std_msgs::Empty>("/human_drone/takeoff",1024);
+    pubLand = node.advertise<std_msgs::Empty>("/human_drone/land",1024);
+    pubReset = node.advertise<std_msgs::Empty>("/human_drone/reset",1024);
+    pubCmd = node.advertise<geometry_msgs::Twist>("/cmd_vel",1024);
 }
 
 void Viman::toggle_ready(void){

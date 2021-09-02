@@ -1,4 +1,4 @@
-#include "vm_pid_linear.h"
+#include "pid_linear.h"
 
 VmPidLinear::VmPidLinear(){
   gain_p = 10.0;

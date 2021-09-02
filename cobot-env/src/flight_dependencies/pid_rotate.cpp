@@ -1,4 +1,4 @@
-#include "vm_pid_rotate.h"
+#include "pid_rotate.h"
 
 VmPidRotate::VmPidRotate(){
   gain_p = 10.0;
