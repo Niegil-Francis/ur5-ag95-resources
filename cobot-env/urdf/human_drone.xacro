@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<robot name="human_drone" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.016521 -0.11994 0.033819"
+        rpy="0 0 0" />
+      <mass
+        value="29.031" />
+      <inertia
+        ixx="0.14356"
+        ixy="0.00061629"
+        ixz="-0.00030473"
+        iyy="0.082265"
+        iyz="0.0059121"
+        izz="0.16567" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/human_drone.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://cobot-env/meshes/human_drone.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <gazebo reference="base_link">
+    <material> Gazebo/Orange </material>
+    <gravity> 0 </gravity>
+  </gazebo>
+
+</robot>
