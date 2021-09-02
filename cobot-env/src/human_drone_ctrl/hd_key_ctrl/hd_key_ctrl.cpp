@@ -32,29 +32,47 @@ void read_input(void){
 					  break;
 			
 			// Take off and Land
-			case 't': calibrate(); //Calibration of height
-			          vm.toggle_ready();
-                      c++;
-			          std::cout << hr << std::endl ;	
-			          std::cout << c << std::endl ;			          
+			case 't': vm.toggle_ready();
 					  isPidRunning = true;
 					  break; 
 			
-			// Stop all
+			// Hover
 			case 's': vm.allStop();
-					  for(int i=0;i<3;i++){
-						 set_points[i] = 0;
-					  }
-					  ROS_INFO("Set height: %f",set_points[2]);
+					  cmd_values[0] = 0;
+					  cmd_values[1] = 0;
 					  break;
 					  
 			// Height (z) +-
-			case 'q': set_points[2] += 0.1;
+			case 'q': set_points[2] += 0.01;
 					  ROS_INFO("Set height: %f",set_points[2]);
 					  break;
-			case 'w': set_points[2] -= 0.1;
+			case 'w': set_points[2] -= 0.01;
 					  if(set_points[2] < 0) set_points[2] = 0;
 					  ROS_INFO("Set height: %f",set_points[2]);
+					  break;
+			
+			// Left and Right
+			case 'j': if(cmd_values[0]<0) cmd_values[0]=0;
+					  cmd_values[0] += 0.05;
+					  if(cmd_values[0] > MAX_LINEAR_X) cmd_values[0]=MAX_LINEAR_X;
+					  ROS_INFO_STREAM("Linear X velocity: " << cmd_values[0]);
+					  break;
+			case 'l': if(cmd_values[0]>0) cmd_values[0]=0;
+					  cmd_values[0] -= 0.05;
+					  if(cmd_values[0] < -MAX_LINEAR_X) cmd_values[0]=-MAX_LINEAR_X;
+					  ROS_INFO_STREAM("Linear X velocity: " << cmd_values[0]);
+					  break;
+			
+			// Fwd and Bck
+			case 'k': if(cmd_values[1]<0) cmd_values[1]=0;
+					  cmd_values[1] += 0.05;
+					  if(cmd_values[1] > MAX_LINEAR_Y) cmd_values[1]=MAX_LINEAR_Y;
+					  ROS_INFO_STREAM("Linear Y velocity: " << cmd_values[1]);
+					  break;
+			case 'i': if(cmd_values[1]>0) cmd_values[1]=0;
+					  cmd_values[1] -= 0.05;
+					  if(cmd_values[1] < -MAX_LINEAR_Y) cmd_values[1]=-MAX_LINEAR_Y;
+					  ROS_INFO_STREAM("Linear Y velocity: " << cmd_values[1]);
 					  break;
 			
 			// Setting height
@@ -129,30 +147,36 @@ void read_input(void){
 void display_help(void){
 	std::cout << "\nUse the following commands: "<< std::endl
 			<< "t: Take off/Land (cmds work iff human_drone has taken off)" << std::endl
-			<< "s: Stop all" << std::endl
+			<< "s: Hover" << std::endl
 			<< "h: Set height (m)" << std::endl
 			<< "y: Set yaw angle (deg)" << std::endl
-			<< "q: Increase height by 0.1 m" << std::endl
-			<< "w: Decrease height by 0.1 m" << std::endl
-			<< "u: Counter-clockwise yaw by 10 deg" << std::endl
-			<< "o: Clockwise yaw by 10 deg" << std::endl
+			<< "**************************" << std::endl
+			<< "q: Height + 0.01 m" << std::endl
+			<< "w: Height - 0.01 m" << std::endl
+			<< "j: Left + 0.05 m/s" << std::endl
+			<< "l: Right - 0.05 m/s" << std::endl
+			<< "i: Forward - 0.05 m/s" << std::endl
+			<< "k: Backward + 0.05 m/s" << std::endl
+			<< "u: Yaw + 10 deg" << std::endl
+			<< "o: Yaw - 10 deg" << std::endl
+			<< "**************************" << std::endl
 			<< "H: Set height PID gains" << std::endl
 			<< "Y: Set yaw PID gains" << std::endl
 			<< "P: Reset height PID" << std::endl
+			<< "**************************" << std::endl
 			<< "z: Display help" << std::endl
 			<< "x: Quit\n" << std::endl;
 }
 
 int main(int argc, char **argv){
 	
-	ros::init(argc,argv,"viman_semiAuto");
+	ros::init(argc,argv,"hd_key_ctrl");
 	ros::NodeHandle node;
 	
 	ros::Subscriber height_subs_ = node.subscribe("/human_drone/height",1,HeightCallbck);
 	ros::Subscriber imu_subs_ = node.subscribe("/human_drone/imu",1,ImuCallbck);
 	
 	vm = Viman(node);
-	c = 0;          //Calibration control variable
 	height_controller_ = VmPidLinear();
 	yaw_controller_ = VmPidRotate();
 	
@@ -187,7 +211,7 @@ int main(int argc, char **argv){
 	double cur_time;
 	double dt;
 		
-	set_points[2] = 0.5;
+	set_points[2] = 0.05;
 	set_orient.yaw = 0;
 		
 	while(do_not_quit && ros::ok()){
@@ -198,7 +222,7 @@ int main(int argc, char **argv){
 			
 			if(dt <= 0 ) continue;
 			
-			cmd_values[2] = height_controller_.update(set_points[2], position[2]-hr, 
+			cmd_values[2] = height_controller_.update(set_points[2], position[2], 
 									  dt);
 									  
 			cmd_values[3] = yaw_controller_.update(set_orient.yaw, cur_orient.yaw, dt);
@@ -213,29 +237,8 @@ int main(int argc, char **argv){
 		ros::spinOnce();
 	}
 }
-void calibrate(void){
-	std::cout << "Calibrating Height..." <<std::endl;
-	hr = 0.0;//Variable to store average z-height
-	//Take off case
-	if(c%2!=0){
-	for(int i = 0; i<100; i++)
-	{
-		hr+=h;
-	}
-	hr=hr/100.0;
-    }
-	//Landing
-	else{	                                    
-    for(int i = 0; i<100; i++)
-	{
-		hr+=h;
-	}
-	hr=hr/100.0;
-	position[2]+=hr;
- }		
-}
+
 void HeightCallbck(const geometry_msgs::PointStamped& height_){
-	h = height_.point.z;
 	position[2] = height_.point.z;	
 }
 

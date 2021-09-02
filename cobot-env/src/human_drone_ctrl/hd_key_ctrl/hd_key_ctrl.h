@@ -24,9 +24,6 @@
 // Store setpoints
 double set_points[3];				// x,y,z
 Cardan set_orient;
-double h;
-double hr;
-int c;					// set orientation
 
 // Store velocity commands
 float cmd_values[4];				// x,y,z,yaw

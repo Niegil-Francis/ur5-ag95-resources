@@ -65,135 +65,21 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        aa1:
+        altimeter:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        aa2:
+        hd_base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        aa3:
+        imu_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        bin_a:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        bin_b:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        bin_c:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        driver1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        driver2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        driver3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        driver4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        driver5:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        eth1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        eth2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        eth3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_leg:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lipo1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        lipo2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        right_leg:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rpi1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rpi2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rpi3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rpi4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        task_board:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        toolkit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        world:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
       Name: RobotModel
       Robot Description: robot_description
       TF Prefix: ""
@@ -205,58 +91,12 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        aa1:
-          Value: false
-        aa2:
+        altimeter:
           Value: true
-        aa3:
-          Value: false
-        base_link:
-          Value: false
-        bin_a:
-          Value: false
-        bin_b:
-          Value: false
-        bin_c:
-          Value: false
-        driver1:
-          Value: false
-        driver2:
-          Value: false
-        driver3:
-          Value: false
-        driver4:
-          Value: false
-        driver5:
-          Value: false
-        eth1:
-          Value: false
-        eth2:
-          Value: false
-        eth3:
-          Value: false
-        left_leg:
-          Value: false
-        lipo1:
-          Value: false
-        lipo2:
-          Value: false
-        right_leg:
-          Value: false
-        rpi1:
-          Value: false
-        rpi2:
-          Value: false
-        rpi3:
-          Value: false
-        rpi4:
-          Value: false
-        task_board:
-          Value: false
-        toolkit:
-          Value: false
-        world:
-          Value: false
+        hd_base_link:
+          Value: true
+        imu_link:
+          Value: true
       Marker Alpha: 1
       Marker Scale: 0.5
       Name: TF
@@ -264,62 +104,18 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        world:
-          base_link:
-            bin_a:
-              {}
-            bin_b:
-              {}
-            bin_c:
-              {}
-            left_leg:
-              {}
-            right_leg:
-              {}
-            task_board:
-              aa1:
-                {}
-              aa2:
-                {}
-              aa3:
-                {}
-              driver1:
-                {}
-              driver2:
-                {}
-              driver3:
-                {}
-              driver4:
-                {}
-              driver5:
-                {}
-              eth1:
-                {}
-              eth2:
-                {}
-              eth3:
-                {}
-              lipo1:
-                {}
-              lipo2:
-                {}
-              rpi1:
-                {}
-              rpi2:
-                {}
-              rpi3:
-                {}
-              rpi4:
-                {}
-            toolkit:
-              {}
+        hd_base_link:
+          altimeter:
+            {}
+          imu_link:
+            {}
       Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: base_link
+    Fixed Frame: hd_base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -343,7 +139,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.8187394142150879
+      Distance: 0.5966743230819702
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -351,17 +147,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.38473278284072876
-        Y: 0.11620938032865524
-        Z: -0.007433164864778519
+        X: 0.08040978014469147
+        Y: -0.3552608788013458
+        Z: -0.9967604875564575
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.26979711651802063
+      Pitch: 1.1397961378097534
       Target Frame: <Fixed Frame>
-      Yaw: 4.858187675476074
+      Yaw: 5.138171672821045
     Saved: ~
 Window Geometry:
   Displays:

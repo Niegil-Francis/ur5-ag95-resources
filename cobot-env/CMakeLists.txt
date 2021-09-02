@@ -38,5 +38,7 @@ catkin_package(
    CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs geometry_msgs gazebo_ros
 )
 
+install(DIRECTORY plugins DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
 add_subdirectory(scripts/build_scene)
 add_subdirectory(src)
