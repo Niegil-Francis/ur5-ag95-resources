@@ -1,44 +1,42 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(cobot-env)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 find_package(catkin REQUIRED
-  COMPONENTS
-    interactive_markers
-    moveit_core
-    moveit_ros_planning
-    moveit_ros_planning_interface
-    moveit_ros_perception
-    rviz_visual_tools
-    moveit_visual_tools
-    pluginlib
-    geometric_shapes
-    pcl_ros
-    pcl_conversions
-    rosbag
-    tf2_ros
-    tf2_eigen
-    tf2_geometry_msgs
+            COMPONENTS
+            roscpp
+            rospy
+            std_msgs
+            sensor_msgs
+            geometry_msgs
 )
 
-find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED system filesystem date_time thread)
+find_package(gazebo REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(Protobuf REQUIRED)
+
+include (FindPkgConfig)
+if (PKG_CONFIG_FOUND)
+    pkg_check_modules(OGRE OGRE)
+    pkg_check_modules(OGRE-Terrain OGRE-Terrain)
+endif()
+
+link_directories(${GAZEBO_LIBRARY_DIRS} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} ${OGRE_LIBRARY_DIRS})
+include_directories( 
+                    ${Boost_INCLUDE_DIR}
+                    ${catkin_INCLUDE_DIRS}
+                    ${GAZEBO_INCLUDE_DIRS}
+                    ${OGRE_INCLUDE_DIRS}
+                    ${OGRE-Terrain_INCLUDE_DIRS}
+                    include
+                    )
+
 
 catkin_package(
-  LIBRARIES
-  INCLUDE_DIRS
-  CATKIN_DEPENDS
-    moveit_core
-    moveit_visual_tools
-    moveit_ros_planning_interface
-    interactive_markers
-    tf2_geometry_msgs
-  DEPENDS
-    EIGEN3
+   INCLUDE_DIRS include
+   CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs geometry_msgs gazebo_ros
 )
 
-include_directories(SYSTEM ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIRS})
-
 add_subdirectory(scripts/build_scene)
+add_subdirectory(src)
