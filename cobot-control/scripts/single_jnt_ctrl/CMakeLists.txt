@@ -1,1 +1,0 @@
-catkin_install_python(PROGRAMS single_jnt_ctrl.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

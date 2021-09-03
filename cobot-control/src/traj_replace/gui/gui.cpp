@@ -22,7 +22,7 @@
 #define STOP 			0
 #define HOME 			1
 #define START_POSE 		2
-#define REPLACE_TRAJ 	3
+#define THIRD_ORDER_SCALE 	3
 #define SCALE_VEL 		4
 
 #define SIM				// comment for hardware control
@@ -84,7 +84,7 @@ public:
 		connect(ui.exeBtn, &QPushButton::clicked, this, &TrajReplaceGui::exeBtnClicked);
 		connect(ui.homeRbtn, &QRadioButton::clicked, this, &TrajReplaceGui::homeBtnClicked);
 		connect(ui.startPoseRbtn, &QRadioButton::clicked, this, &TrajReplaceGui::startPoseBtnClicked);
-		connect(ui.replaceTrajRbtn, &QRadioButton::clicked, this, &TrajReplaceGui::replaceTrajBtnClicked);
+		connect(ui.thirdOrderScaleRbtn, &QRadioButton::clicked, this, &TrajReplaceGui::replaceTrajBtnClicked);
 		connect(ui.scaleVelRBtn, &QRadioButton::clicked, this, &TrajReplaceGui::scaleVelBtnClicked);
 	}
 
@@ -120,17 +120,17 @@ private slots:
 			
 			ui.homeRbtn->setAutoExclusive(false);
 			ui.startPoseRbtn->setAutoExclusive(false);
-			ui.replaceTrajRbtn->setAutoExclusive(false);
+			ui.thirdOrderScaleRbtn->setAutoExclusive(false);
 			ui.scaleVelRBtn->setAutoExclusive(false);
 
 			ui.homeRbtn->setChecked(false);
 			ui.startPoseRbtn->setChecked(false);
-			ui.replaceTrajRbtn->setChecked(false);
+			ui.thirdOrderScaleRbtn->setChecked(false);
 			ui.scaleVelRBtn->setChecked(false);
 			
 			ui.homeRbtn->setAutoExclusive(true);
 			ui.startPoseRbtn->setAutoExclusive(true);
-			ui.replaceTrajRbtn->setAutoExclusive(true);
+			ui.thirdOrderScaleRbtn->setAutoExclusive(true);
 			ui.scaleVelRBtn->setAutoExclusive(true);
 		}
 
@@ -146,7 +146,7 @@ private slots:
 	}
 
 	void replaceTrajBtnClicked(){
-		exe_msg_.data = REPLACE_TRAJ;
+		exe_msg_.data = THIRD_ORDER_SCALE;
 	}
 
 	void scaleVelBtnClicked(){

@@ -31,12 +31,8 @@ public:
     QVBoxLayout *verticalLayout;
     QRadioButton *homeRbtn;
     QRadioButton *startPoseRbtn;
-    QRadioButton *replaceTrajRbtn;
+    QRadioButton *thirdOrderScaleRbtn;
     QRadioButton *scaleVelRBtn;
-    QWidget *formLayoutWidget;
-    QFormLayout *formLayout;
-    QLineEdit *scaleFactorTf;
-    QLabel *scaleFactorLb;
 
     void setupUi(QMainWindow *mainWindow)
     {
@@ -51,7 +47,7 @@ public:
         exeBtn->setCursor(QCursor(Qt::PointingHandCursor));
         verticalLayoutWidget = new QWidget(centralWidget);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(10, 10, 160, 112));
+        verticalLayoutWidget->setGeometry(QRect(10, 10, 192, 112));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
@@ -67,33 +63,17 @@ public:
 
         verticalLayout->addWidget(startPoseRbtn);
 
-        replaceTrajRbtn = new QRadioButton(verticalLayoutWidget);
-        replaceTrajRbtn->setObjectName(QString::fromUtf8("replaceTrajRbtn"));
-        replaceTrajRbtn->setCursor(QCursor(Qt::PointingHandCursor));
+        thirdOrderScaleRbtn = new QRadioButton(verticalLayoutWidget);
+        thirdOrderScaleRbtn->setObjectName(QString::fromUtf8("thirdOrderScaleRbtn"));
+        thirdOrderScaleRbtn->setCursor(QCursor(Qt::PointingHandCursor));
 
-        verticalLayout->addWidget(replaceTrajRbtn);
+        verticalLayout->addWidget(thirdOrderScaleRbtn);
 
         scaleVelRBtn = new QRadioButton(verticalLayoutWidget);
         scaleVelRBtn->setObjectName(QString::fromUtf8("scaleVelRBtn"));
         scaleVelRBtn->setCursor(QCursor(Qt::PointingHandCursor));
 
         verticalLayout->addWidget(scaleVelRBtn);
-
-        formLayoutWidget = new QWidget(centralWidget);
-        formLayoutWidget->setObjectName(QString::fromUtf8("formLayoutWidget"));
-        formLayoutWidget->setGeometry(QRect(190, 100, 160, 21));
-        formLayout = new QFormLayout(formLayoutWidget);
-        formLayout->setObjectName(QString::fromUtf8("formLayout"));
-        formLayout->setContentsMargins(0, 0, 0, 0);
-        scaleFactorTf = new QLineEdit(formLayoutWidget);
-        scaleFactorTf->setObjectName(QString::fromUtf8("scaleFactorTf"));
-
-        formLayout->setWidget(0, QFormLayout::FieldRole, scaleFactorTf);
-
-        scaleFactorLb = new QLabel(formLayoutWidget);
-        scaleFactorLb->setObjectName(QString::fromUtf8("scaleFactorLb"));
-
-        formLayout->setWidget(0, QFormLayout::LabelRole, scaleFactorLb);
 
         mainWindow->setCentralWidget(centralWidget);
 
@@ -108,9 +88,8 @@ public:
         exeBtn->setText(QApplication::translate("mainWindow", "Execute", nullptr));
         homeRbtn->setText(QApplication::translate("mainWindow", "Home", nullptr));
         startPoseRbtn->setText(QApplication::translate("mainWindow", "Start pose", nullptr));
-        replaceTrajRbtn->setText(QApplication::translate("mainWindow", "Replace trajectory", nullptr));
-        scaleVelRBtn->setText(QApplication::translate("mainWindow", "Scale velocity", nullptr));
-        scaleFactorLb->setText(QApplication::translate("mainWindow", "Scale factor", nullptr));
+        thirdOrderScaleRbtn->setText(QApplication::translate("mainWindow", "3rd Order Time Scale", nullptr));
+        scaleVelRBtn->setText(QApplication::translate("mainWindow", "5th Order Time Scale", nullptr));
     } // retranslateUi
 
 };

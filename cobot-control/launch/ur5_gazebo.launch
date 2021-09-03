@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="scene" default="empty_table"/>
+  <arg name="scene" default="e_waste"/>
 
   <!-- By default, we are not in debug mode -->
   <arg name="debug" value="false" />
@@ -20,26 +20,10 @@
   <arg name="tf_prefix" value="" doc="tf_prefix used for the robot."/>
   <arg name="tf_pub_rate" value="125" doc="Rate at which robot_state_publisher should publish transforms."/>
 
-  <!-- Gazebo parameters -->
-  <arg name="paused" value="true" doc="Starts Gazebo in paused mode" />
-  <arg name="gui" value="true" doc="Starts Gazebo gui" />
-
   <!-- Load urdf on the parameter server -->
   <param name="robot_description" command="$(find xacro)/xacro '$(find cobot-description)/urdf/ur5.xacro'"/>
-  <param  name="table_description" 
-          command="$(find xacro)/xacro '$(find cobot-env)/urdf/e-waste-setup.xacro'" 
-          if="$(eval arg('scene')=='e_waste')"/>
-  <param  name="table_description" 
-          command="$(find xacro)/xacro '$(find cobot-env)/urdf/table.xacro'" 
-          if="$(eval arg('scene')=='empty_table')"/>
-  
   <arg name="load_robot_description" value="false"/>
 
-  <!-- Gazebo parameters -->
-  <arg name="gazebo_model_name" value="ur5" doc="The name to give to the model in Gazebo (after spawning it)." />
-  <arg name="gazebo_world" value="$(find cobot-env)/worlds/actor_example.world" doc="The '.world' file to load in Gazebo." />
-  <arg name="robot_description_param_name" value="robot_description" doc="Name of the parameter which contains the robot description (ie: URDF) which should be spawned into Gazebo." />
-  
   <!-- Load controller settings -->
   <rosparam file="$(arg controller_config_file)" command="load"/>
 
@@ -65,10 +49,14 @@
   </include>
 
   <!-- Start Gazebo and load the empty world if requested to do so -->
-  <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(arg gazebo_world)"/>
-    <arg name="paused" value="$(arg paused)"/>
-    <arg name="gui" value="$(arg gui)"/>
+  <include file="$(find cobot-env)/launch/cobot-env.launch">
+    <arg name="scene" value="$(arg scene)"/>
+    <arg name="debug" value="false"/>
+    <arg name="gui" value="true"/>
+    <arg name="paused" value="true"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="verbose" value="true"/>
+    <arg name="world_name" value="$(find cobot-env)/worlds/custom_empty.world"/>
   </include>
 
   <!-- Load and start the controllers listed in the 'controllers' arg. -->
@@ -79,42 +67,8 @@
   <node name="ros_control_stopped_spawner" pkg="controller_manager" type="spawner"
     args="--stopped $(arg stopped_controllers)" output="screen" respawn="false" />
 
-  <group if="$(eval arg('scene')=='empty_table')">
-    <node name="spawn_ur5_model" pkg="gazebo_ros" type="spawn_model"
-      args="
-        -urdf
-        -param $(arg robot_description_param_name)
-        -model $(arg gazebo_model_name)
-        -z 0.938"
-      output="screen" respawn="false" />
+  <!-- Add table to RViz -->
+  <node pkg="cobot-env" type="build_scene.py" name="scene_builder" if="$(eval arg('scene')=='empty_table')"/>
+  <node pkg="cobot-env" type="build_e_waste_scene.py" name="scene_builder" if="$(eval arg('scene')=='e_waste')"/>
 
-      <node pkg="cobot-env" 
-        type="build_scene.py" 
-        name="scene_builder"/>
-  </group>
-
-  <group if="$(eval arg('scene')=='e_waste')">
-    <node name="spawn_ur5_model" pkg="gazebo_ros" type="spawn_model"
-      args="
-        -urdf
-        -param $(arg robot_description_param_name)
-        -model $(arg gazebo_model_name)
-        -J shoulder_lift_joint -1.5708
-        -J wrist_1_joint -1.5708
-        -z 0.938"
-      output="screen" respawn="false" />
-
-      <node pkg="cobot-env" 
-        type="build_e_waste_scene.py" 
-        name="scene_builder"/>
-  </group>
-
-  <node name="spawn_table_model" pkg="gazebo_ros" type="spawn_model"
-    args="
-      -urdf
-      -param table_description
-      -model table
-      -z 0.935 -Y 0.785398"
-    output="screen" respawn="false" />
-  
 </launch>
