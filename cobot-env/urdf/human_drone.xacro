@@ -42,6 +42,4 @@
     <material> Gazebo/Orange </material>
   </gazebo>
 
-  <xacro:include filename="$(find cobot-env)/urdf/human_drone_sensors.xacro"/>
-
 </robot>

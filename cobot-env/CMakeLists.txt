@@ -1,44 +1,31 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(cobot-env)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
+find_package(gazebo REQUIRED)
 find_package(catkin REQUIRED
-  COMPONENTS
-    interactive_markers
-    moveit_core
-    moveit_ros_planning
-    moveit_ros_planning_interface
-    moveit_ros_perception
-    rviz_visual_tools
-    moveit_visual_tools
-    pluginlib
-    geometric_shapes
-    pcl_ros
-    pcl_conversions
-    rosbag
-    tf2_ros
-    tf2_eigen
-    tf2_geometry_msgs
+            COMPONENTS
+            roscpp
+            rospy
+            std_msgs
+            gazebo_msgs
 )
-
-find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED system filesystem date_time thread)
 
 catkin_package(
-  LIBRARIES
-  INCLUDE_DIRS
-  CATKIN_DEPENDS
-    moveit_core
-    moveit_visual_tools
-    moveit_ros_planning_interface
-    interactive_markers
-    tf2_geometry_msgs
-  DEPENDS
-    EIGEN3
+   CATKIN_DEPENDS roscpp rospy std_msgs gazebo_msgs gazebo_ros
 )
 
-include_directories(SYSTEM ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIRS})
+link_directories(
+    ${GAZEBO_LIBRARY_DIRS}
+    )
+include_directories( 
+                    ${catkin_INCLUDE_DIRS}
+                    ${GAZEBO_INCLUDE_DIRS}
+                    )
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
 add_subdirectory(scripts/build_scene)
+add_subdirectory(src)

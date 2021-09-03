@@ -43,5 +43,14 @@
 			<origin rpy="0.0 0.0 0.0" xyz="0 0 0" />
 	</joint>
 
+  <gazebo reference="shoulder_link">
+    <sensor name='plugin' type='contact'>
+        <contact>
+          <collision>
+            shoulder_link_collision
+          </collision>
+        </contact>
+      </sensor>
+  </gazebo>
 
 </robot>

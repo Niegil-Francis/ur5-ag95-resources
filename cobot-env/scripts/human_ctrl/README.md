@@ -1,4 +1,4 @@
-# human_ctrl
+# cobot-env/scripts/human_ctrl
 
 ## About
 

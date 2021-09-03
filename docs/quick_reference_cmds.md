@@ -36,6 +36,13 @@ rosrun cobot-env pose_publisher.py
 rosrun cobot-env user_pose_input.py
 ```
 
+#### Learning whether UR5 collided with an object in the environment
+
+```bash
+rosrun cobot-env ur_collisions
+```
+
+- Publishes an empty message onto topic `/ur5_collided` whenever there is collision with UR5
 
 <br/>
 
