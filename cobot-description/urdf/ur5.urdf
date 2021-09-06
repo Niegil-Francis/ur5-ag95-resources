@@ -378,6 +378,9 @@
     </collision>
   </link>
   <gazebo reference="camera_mount_link">
+    <material>
+				Gazebo/Black
+			</material>
     <implicitSpringDamper>1</implicitSpringDamper>
     <mu1>100000</mu1>
     <mu2>100000</mu2>
@@ -386,7 +389,7 @@
   </gazebo>
   <!-- Adding TCP -->
   <joint name="tcp_fixed" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0.182"/>
+    <origin rpy="0 0 0" xyz="0 0 0.205"/>
     <parent link="tool0"/>
     <child link="tcp"/>
   </joint>
@@ -415,9 +418,9 @@
     </inertial>
   </link>
   <gazebo reference="gripper_base_link">
-    <implicitSpringDamper>
-				1
-			</implicitSpringDamper>
+    <material>
+				Gazebo/Black
+			</material>
     <mu1>
 				100000
 			</mu1>
@@ -428,23 +431,34 @@
 				100000000.0
 			</kp>
     <kd>
-				1.0
+				10.0
 			</kd>
+    <maxVel>
+				0.0
+			</maxVel>
   </gazebo>
   <joint name="gripper_finger1_joint" type="revolute">
     <parent link="gripper_base_link"/>
     <child link="gripper_finger1_knuckle_link"/>
     <axis xyz="0 -1 0"/>
     <origin rpy="0.0 0.0 3.14159265359" xyz="-0.016 0 0.10586"/>
-    <limit effort="1000" lower="0.0" upper="0.65" velocity="2.0"/>
+    <limit effort="0.0001" lower="0.0" upper="0.65" velocity="0.0"/>
   </joint>
-  <joint name="gripper_finger2_joint" type="revolute">
+  <gazebo reference="gripper_finger1_joint">
+    <implicitSpringDamper>
+				1
+			</implicitSpringDamper>
+    <springStiffness>
+				2000000
+			</springStiffness>
+  </gazebo>
+  <joint name="gripper_finger2_joint" type="fixed">
     <parent link="gripper_base_link"/>
     <child link="gripper_finger2_knuckle_link"/>
     <axis xyz="0 -1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0160 0 0.10586"/>
-    <limit effort="1000" lower="-3.14" upper="3.14" velocity="100.0"/>
-    <mimic joint="gripper_finger1_joint"/>
+    <limit effort="0.0001" lower="-3.14" upper="3.14" velocity="0.0"/>
+    <!-- <mimic joint="gripper_finger1_joint" /> -->
   </joint>
   <link name="gripper_finger1_knuckle_link">
     <visual>
@@ -464,9 +478,9 @@
     </inertial>
   </link>
   <gazebo reference="gripper_finger1_knuckle_link">
-    <implicitSpringDamper>
-				1
-			</implicitSpringDamper>
+    <material>
+				Gazebo/DarkGrey
+			</material>
     <mu1>
 				100000
 			</mu1>
@@ -477,8 +491,11 @@
 				100000000.0
 			</kp>
     <kd>
-				1.0
+				10.0
 			</kd>
+    <maxVel>
+				0.0
+			</maxVel>
   </gazebo>
   <link name="gripper_finger2_knuckle_link">
     <visual>
@@ -498,9 +515,9 @@
     </inertial>
   </link>
   <gazebo reference="gripper_finger2_knuckle_link">
-    <implicitSpringDamper>
-				1
-			</implicitSpringDamper>
+    <material>
+				Gazebo/DarkGrey
+			</material>
     <mu1>
 				100000
 			</mu1>
@@ -511,24 +528,27 @@
 				100000000.0
 			</kp>
     <kd>
-				1.0
+				10.0
 			</kd>
+    <maxVel>
+				0.0
+			</maxVel>
   </gazebo>
-  <joint name="gripper_finger1_finger_joint" type="continuous">
+  <joint name="gripper_finger1_finger_joint" type="fixed">
     <parent link="gripper_finger1_knuckle_link"/>
     <child link="gripper_finger1_finger_link"/>
     <axis xyz="0 -1 0"/>
     <origin rpy="0 0 0" xyz="0.0292080077784 0.0 -0.0227132622407"/>
-    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="100.0"/>
-    <mimic joint="gripper_finger1_joint" multiplier="0.4563942" offset="0"/>
+    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="0.0"/>
+    <!-- <mimic joint="gripper_finger1_joint" multiplier="0.4563942" offset="0" /> -->
   </joint>
-  <joint name="gripper_finger2_finger_joint" type="continuous">
+  <joint name="gripper_finger2_finger_joint" type="fixed">
     <parent link="gripper_finger2_knuckle_link"/>
     <child link="gripper_finger2_finger_link"/>
     <axis xyz="0 -1 0"/>
     <origin rpy="0 0 0" xyz="0.0292080077784 0.0 -0.0227132622407"/>
-    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="100.0"/>
-    <mimic joint="gripper_finger1_joint" multiplier="0.4563942" offset="0"/>
+    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="0.0"/>
+    <!-- <mimic joint="gripper_finger1_joint" multiplier="0.4563942" offset="0" /> -->
   </joint>
   <link name="gripper_finger1_finger_link">
     <visual>
@@ -548,9 +568,9 @@
     </inertial>
   </link>
   <gazebo reference="gripper_finger1_finger_link">
-    <implicitSpringDamper>
-				1
-			</implicitSpringDamper>
+    <material>
+				Gazebo/Grey
+			</material>
     <mu1>
 				100000
 			</mu1>
@@ -561,8 +581,11 @@
 				100000000.0
 			</kp>
     <kd>
-				1.0
+				10.0
 			</kd>
+    <maxVel>
+				0.0
+			</maxVel>
   </gazebo>
   <link name="gripper_finger2_finger_link">
     <visual>
@@ -582,9 +605,9 @@
     </inertial>
   </link>
   <gazebo reference="gripper_finger2_finger_link">
-    <implicitSpringDamper>
-				1
-			</implicitSpringDamper>
+    <material>
+				Gazebo/Grey
+			</material>
     <mu1>
 				100000
 			</mu1>
@@ -595,24 +618,27 @@
 				100000000.0
 			</kp>
     <kd>
-				1.0
+				10.0
 			</kd>
+    <maxVel>
+				0.0
+			</maxVel>
   </gazebo>
-  <joint name="gripper_finger1_inner_knuckle_joint" type="continuous">
+  <joint name="gripper_finger1_inner_knuckle_joint" type="fixed">
     <parent link="gripper_base_link"/>
     <child link="gripper_finger1_inner_knuckle_link"/>
     <axis xyz="0 -1 0"/>
     <origin rpy="0.0 0.0 3.14159265359" xyz="-0.016 0 0.10586"/>
-    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="100.0"/>
-    <mimic joint="gripper_finger1_joint" multiplier="1.49462955" offset="0"/>
+    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="0.0"/>
+    <!-- <mimic joint="gripper_finger1_joint" multiplier="1.49462955" offset="0" /> -->
   </joint>
-  <joint name="gripper_finger2_inner_knuckle_joint" type="continuous">
+  <joint name="gripper_finger2_inner_knuckle_joint" type="fixed">
     <parent link="gripper_base_link"/>
     <child link="gripper_finger2_inner_knuckle_link"/>
     <axis xyz="0 -1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.016 0 0.10586"/>
-    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="100.0"/>
-    <mimic joint="gripper_finger1_joint" multiplier="1.49462955" offset="0"/>
+    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="0.0"/>
+    <!-- <mimic joint="gripper_finger1_joint" multiplier="1.49462955" offset="0" /> -->
   </joint>
   <link name="gripper_finger1_inner_knuckle_link">
     <visual>
@@ -632,9 +658,9 @@
     </inertial>
   </link>
   <gazebo reference="gripper_finger1_inner_knuckle_link">
-    <implicitSpringDamper>
-				1
-			</implicitSpringDamper>
+    <material>
+				Gazebo/DarkGrey
+			</material>
     <mu1>
 				100000
 			</mu1>
@@ -645,8 +671,11 @@
 				100000000.0
 			</kp>
     <kd>
-				1.0
+				10.0
 			</kd>
+    <maxVel>
+				0.0
+			</maxVel>
   </gazebo>
   <link name="gripper_finger2_inner_knuckle_link">
     <visual>
@@ -666,9 +695,9 @@
     </inertial>
   </link>
   <gazebo reference="gripper_finger2_inner_knuckle_link">
-    <implicitSpringDamper>
-				1
-			</implicitSpringDamper>
+    <material>
+				Gazebo/DarkGrey
+			</material>
     <mu1>
 				100000
 			</mu1>
@@ -679,24 +708,27 @@
 				100000000.0
 			</kp>
     <kd>
-				1.0
+				10.0
 			</kd>
+    <maxVel>
+				0.0
+			</maxVel>
   </gazebo>
-  <joint name="gripper_finger1_finger_tip_joint" type="continuous">
+  <joint name="gripper_finger1_finger_tip_joint" type="fixed">
     <parent link="gripper_finger1_inner_knuckle_link"/>
     <child link="gripper_finger1_finger_tip_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0394969463769 0.0 0.0382752038125 "/>
-    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="100.0"/>
-    <mimic joint="gripper_finger1_joint" multiplier="1.49462955"/>
+    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="0.0"/>
+    <!-- <mimic joint="gripper_finger1_joint" multiplier="1.49462955" /> -->
   </joint>
-  <joint name="gripper_finger2_finger_tip_joint" type="continuous">
+  <joint name="gripper_finger2_finger_tip_joint" type="fixed">
     <parent link="gripper_finger2_inner_knuckle_link"/>
     <child link="gripper_finger2_finger_tip_link"/>
     <axis xyz="0 1 0"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0394969463769  0.0 0.0382752038125"/>
-    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="100.0"/>
-    <mimic joint="gripper_finger1_joint" multiplier="1.49462955"/>
+    <limit effort="0.1" lower="-3.14" upper="3.14" velocity="0.0"/>
+    <!-- <mimic joint="gripper_finger1_joint" multiplier="1.49462955" /> -->
   </joint>
   <link name="gripper_finger1_finger_tip_link">
     <visual>
@@ -716,9 +748,9 @@
     </inertial>
   </link>
   <gazebo reference="gripper_finger1_finger_tip_link">
-    <implicitSpringDamper>
-				1
-			</implicitSpringDamper>
+    <material>
+				Gazebo/Grey
+			</material>
     <mu1>
 				100000
 			</mu1>
@@ -729,8 +761,11 @@
 				100000000.0
 			</kp>
     <kd>
-				1.0
+				10.0
 			</kd>
+    <maxVel>
+				0.0
+			</maxVel>
   </gazebo>
   <link name="gripper_finger2_finger_tip_link">
     <visual>
@@ -750,9 +785,9 @@
     </inertial>
   </link>
   <gazebo reference="gripper_finger2_finger_tip_link">
-    <implicitSpringDamper>
-				1
-			</implicitSpringDamper>
+    <material>
+				Gazebo/Grey
+			</material>
     <mu1>
 				100000
 			</mu1>
@@ -763,8 +798,11 @@
 				100000000.0
 			</kp>
     <kd>
-				1.0
+				10.0
 			</kd>
+    <maxVel>
+				0.0
+			</maxVel>
   </gazebo>
   <transmission name="gripper_finger1_joint_trans">
     <type>transmission_interface/SimpleTransmission</type>
@@ -775,48 +813,56 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <gazebo>
-    <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2">
-      <joint>gripper_finger1_joint</joint>
-      <mimicJoint>gripper_finger2_joint</mimicJoint>
-      <multiplier>1.0</multiplier>
-    </plugin>
-    <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger1_finger">
-      <joint>gripper_finger1_joint</joint>
-      <mimicJoint>gripper_finger1_finger_joint</mimicJoint>
-      <multiplier>0.4563942</multiplier>
-    </plugin>
-    <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
-      <joint>gripper_finger1_joint</joint>
-      <mimicJoint>gripper_finger2_finger_joint</mimicJoint>
-      <multiplier>0.4563942</multiplier>
-    </plugin>
-    <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
-      <joint>gripper_finger1_joint</joint>
-      <mimicJoint>gripper_finger2_finger_joint</mimicJoint>
-      <multiplier>0.4563942</multiplier>
-    </plugin>
-    <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
-      <joint>gripper_finger1_joint</joint>
-      <mimicJoint>gripper_finger1_inner_knuckle_joint</mimicJoint>
-      <multiplier>1.49462955</multiplier>
-    </plugin>
-    <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
-      <joint>gripper_finger1_joint</joint>
-      <mimicJoint>gripper_finger2_inner_knuckle_joint</mimicJoint>
-      <multiplier>1.49462955</multiplier>
-    </plugin>
-    <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
-      <joint>gripper_finger1_joint</joint>
-      <mimicJoint>gripper_finger1_finger_tip_joint</mimicJoint>
-      <multiplier>1.49462955</multiplier>
-    </plugin>
-    <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
-      <joint>gripper_finger1_joint</joint>
-      <mimicJoint>gripper_finger2_finger_tip_joint</mimicJoint>
-      <multiplier>1.49462955</multiplier>
-    </plugin>
-  </gazebo>
+  <!-- <gazebo>
+        <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2">
+          <joint>gripper_finger1_joint</joint>
+          <mimicJoint>gripper_finger2_joint</mimicJoint>
+          <multiplier>1.0</multiplier> 
+        </plugin>
+
+        <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger1_finger">
+          <joint>gripper_finger1_joint</joint>
+          <mimicJoint>gripper_finger1_finger_joint</mimicJoint>
+          <multiplier>0.4563942</multiplier> 
+        </plugin>
+
+        <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
+          <joint>gripper_finger1_joint</joint>
+          <mimicJoint>gripper_finger2_finger_joint</mimicJoint>
+          <multiplier>0.4563942</multiplier> 
+        </plugin>
+
+        <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
+          <joint>gripper_finger1_joint</joint>
+          <mimicJoint>gripper_finger2_finger_joint</mimicJoint>
+          <multiplier>0.4563942</multiplier> 
+        </plugin>
+
+        <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
+          <joint>gripper_finger1_joint</joint>
+          <mimicJoint>gripper_finger1_inner_knuckle_joint</mimicJoint>
+          <multiplier>1.49462955</multiplier> 
+        </plugin>
+
+        <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
+          <joint>gripper_finger1_joint</joint>
+          <mimicJoint>gripper_finger2_inner_knuckle_joint</mimicJoint>
+          <multiplier>1.49462955</multiplier> 
+        </plugin>
+
+        <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
+          <joint>gripper_finger1_joint</joint>
+          <mimicJoint>gripper_finger1_finger_tip_joint</mimicJoint>
+          <multiplier>1.49462955</multiplier> 
+        </plugin>
+
+        <plugin filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so" name="mimic_finger2_finger">
+          <joint>gripper_finger1_joint</joint>
+          <mimicJoint>gripper_finger2_finger_tip_joint</mimicJoint>
+          <multiplier>1.49462955</multiplier> 
+        </plugin>
+
+    </gazebo> -->
   <gazebo>
     <plugin filename="libgazebo_ros_control.so" name="gazebo_ros_control">
       <robotNamespace>/</robotNamespace>
@@ -829,4 +875,3 @@
     <origin rpy="0.0 0.0 0.0" xyz="0 0 0"/>
   </joint>
 </robot>
-
