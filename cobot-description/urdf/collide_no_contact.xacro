@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+    <gazebo reference="ag95_all_link">
+      <collision>
+        <surface>
+          <contact>
+            <collide_without_contact>true</collide_without_contact>
+          </contact>
+        </surface>
+      </collision>
+    </gazebo>
+
+    <gazebo reference="base_link">
+      <collision>
+        <surface>
+          <contact>
+            <collide_without_contact>true</collide_without_contact>
+          </contact>
+        </surface>
+      </collision>
+    </gazebo>
+
+    <gazebo reference="shoulder_link">
+      <collision>
+        <surface>
+          <contact>
+            <collide_without_contact>true</collide_without_contact>
+          </contact>
+        </surface>
+      </collision>
+    </gazebo>
+
+    <gazebo reference="upper_arm_link">
+      <collision>
+        <surface>
+          <contact>
+            <collide_without_contact>true</collide_without_contact>
+          </contact>
+        </surface>
+      </collision>
+    </gazebo>
+
+    <gazebo reference="forearm_link">
+      <collision>
+        <surface>
+          <contact>
+            <collide_without_contact>true</collide_without_contact>
+          </contact>
+        </surface>
+      </collision>
+    </gazebo>
+
+    <gazebo reference="wrist_1_link">
+      <collision>
+        <surface>
+          <contact>
+            <collide_without_contact>true</collide_without_contact>
+          </contact>
+        </surface>
+      </collision>
+    </gazebo>
+    
+    <gazebo reference="wrist_2_link">
+      <collision>
+        <surface>
+          <contact>
+            <collide_without_contact>true</collide_without_contact>
+          </contact>
+        </surface>
+      </collision>
+    </gazebo>
+    
+    <gazebo reference="wrist_3_link">
+      <collision>
+        <surface>
+          <contact>
+            <collide_without_contact>true</collide_without_contact>
+          </contact>
+        </surface>
+      </collision>
+    </gazebo>
+
+</robot>

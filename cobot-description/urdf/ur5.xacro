@@ -28,6 +28,7 @@
             ag95_all_parent="tool0"
             origin_offset="0 0 0.06"
             origin_angle="${pi/2} 0 0"/>
+  <xacro:include filename="$(find cobot-description)/urdf/collide_no_contact.xacro" />
 
   <!-- ag95 gripper  -->
   <!-- <xacro:include filename="$(find cobot-description)/urdf/ag95/ag95.xacro" />
