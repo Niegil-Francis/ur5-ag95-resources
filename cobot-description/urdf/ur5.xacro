@@ -8,11 +8,11 @@
   <xacro:ur5_robot prefix="" />
   
   <!-- camera -->
-  <xacro:include filename="$(find cobot-description)/urdf/camera/camera.xacro" />
+  <!-- <xacro:include filename="$(find cobot-description)/urdf/camera/camera.xacro" />
   <xacro:camera
             camera_parent="tool0"
             origin_offset="-0.04 0.04 0"
-            origin_angle="0.0 ${-pi/2} ${pi}"/>
+            origin_angle="0.0 ${-pi/2} ${pi}"/> -->
   
   <!-- Adding TCP -->
   <joint name='tcp_fixed' type='fixed'>
@@ -22,13 +22,20 @@
   </joint>
   <link name = 'tcp'/>
 
+   <!-- ag95_all -->
+  <xacro:include filename="$(find cobot-description)/urdf/ag95/ag95_all.xacro" />
+  <xacro:ag95_all
+            ag95_all_parent="tool0"
+            origin_offset="0 0 0.06"
+            origin_angle="${pi/2} 0 0"/>
+
   <!-- ag95 gripper  -->
-  <xacro:include filename="$(find cobot-description)/urdf/ag95/ag95.xacro" />
+  <!-- <xacro:include filename="$(find cobot-description)/urdf/ag95/ag95.xacro" />
   <xacro:ag95
             gripper_parent="camera_mount_link"
             joint_origin_offset="0 0 0.01"
             joint_origin_angle="0 0 0"
-            hw_interface="$(arg transmission_hw_interface)"/>
+            hw_interface="$(arg transmission_hw_interface)"/> -->
 
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
