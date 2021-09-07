@@ -1,32 +1,28 @@
 joint_state_controller:
   type: joint_state_controller/JointStateController
-  publish_rate: 50
+  publish_rate: &loop_hz 125
 
-# shoulder_pan_controller:
-#   type: position_controllers/JointPositionController
-#   joint: shoulder_pan_joint
-#   pid: {p: 100.0, i: 0.01, d: 10.0}
-# shoulder_lift_controller:
-#   type: position_controllers/JointPositionController
-#   joint: shoulder_lift_joint
-#   pid: {p: 100.0, i: 0.01, d: 10.0}
-# elbow_controller:
-#   type: position_controllers/JointPositionController
-#   joint: elbow_joint
-#   pid: {p: 100.0, i: 0.01, d: 10.0}
-# wrist_1_controller:
-#   type: position_controllers/JointPositionController
-#   joint: wrist_1_joint
-#   pid: {p: 100.0, i: 0.01, d: 10.0}
-# wrist_2_controller:
-#   type: position_controllers/JointPositionController
-#   joint: wrist_2_joint
-#   pid: {p: 100.0, i: 0.01, d: 10.0}
-# wrist_3_controller:
-#   type: position_controllers/JointPositionController
-#   joint: wrist_3_joint
-#   pid: {p: 100.0, i: 0.01, d: 10.0}
-finger_controller:
+shoulder_pan_controller:
   type: position_controllers/JointPositionController
-  joint: gripper_finger1_joint
+  joint: shoulder_pan_joint
+  pid: {p: 100.0, i: 0.01, d: 10.0}
+shoulder_lift_controller:
+  type: position_controllers/JointPositionController
+  joint: shoulder_lift_joint
+  pid: {p: 100.0, i: 0.01, d: 10.0}
+elbow_controller:
+  type: position_controllers/JointPositionController
+  joint: elbow_joint
+  pid: {p: 100.0, i: 0.01, d: 10.0}
+wrist_1_controller:
+  type: position_controllers/JointPositionController
+  joint: wrist_1_joint
+  pid: {p: 100.0, i: 0.01, d: 10.0}
+wrist_2_controller:
+  type: position_controllers/JointPositionController
+  joint: wrist_2_joint
+  pid: {p: 100.0, i: 0.01, d: 10.0}
+wrist_3_controller:
+  type: position_controllers/JointPositionController
+  joint: wrist_3_joint
   pid: {p: 100.0, i: 0.01, d: 10.0}

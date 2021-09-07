@@ -33,7 +33,7 @@
     <material> Gazebo/Turquoise </material>
   </gazebo>
 
-  <gazebo reference="eth1">
+  <!-- <gazebo reference="eth1">
     <material> Gazebo/DarkGrey </material>
   </gazebo>
 
@@ -43,7 +43,7 @@
 
   <gazebo reference="eth3">
     <material> Gazebo/DarkGrey </material>
-  </gazebo>
+  </gazebo> -->
 
   <gazebo reference="rpi1">
     <material> Gazebo/SkyBlue </material>
@@ -97,9 +97,9 @@
     <material> Gazebo/Grey </material>
   </gazebo>
 
-  <gazebo reference="toolkit">
+  <!-- <gazebo reference="toolkit">
     <material> Gazebo/Purple </material>
-  </gazebo>
+  </gazebo> -->
 
   <gazebo>
     <static> 1 </static>

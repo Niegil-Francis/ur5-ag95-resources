@@ -12,9 +12,9 @@
   <arg name="visual_params" value="$(find ur_description)/config/ur5/visual_parameters.yaml"/>
 
   <!-- Controller configuration -->
-  <arg name="controller_config_file" value="$(find cobot-description)/config/ur5_gazebo_controllers.yaml" doc="Config file used for defining the ROS-Control controllers."/>
-  <arg name="controllers" value="joint_state_controller pos_joint_traj_controller" doc="Controllers that are activated by default."/>
-  <arg name="stopped_controllers" value="joint_group_pos_controller" doc="Controllers that are initally loaded, but not started."/>
+  <arg name="controller_config_file" value="$(find cobot-description)/config/ur5.yaml" doc="Config file used for defining the ROS-Control controllers."/>
+  <arg name="controllers" value="joint_state_controller shoulder_pan_controller shoulder_lift_controller elbow_controller wrist_1_controller wrist_2_controller wrist_3_controller" doc="Controllers that are activated by default."/>
+  <arg name="stopped_controllers" value="" doc="Controllers that are initally loaded, but not started."/>
 
   <!-- robot_state_publisher configuration -->
   <arg name="tf_prefix" value="" doc="tf_prefix used for the robot."/>

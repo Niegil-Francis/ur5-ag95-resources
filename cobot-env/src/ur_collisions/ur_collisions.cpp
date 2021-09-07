@@ -10,23 +10,26 @@ UrCollisions::UrCollisions(){
 
 	// initializing ROS communication
 	this->nh_ = ros::NodeHandle();
-	this->collision_pub_ = this->nh_.advertise<std_msgs::Empty>("/ur5_collided", 1);
+	this->collision_pub_ = this->nh_.advertise<std_msgs::Int32>("/ur5_collided", 1);
 }
 
 void UrCollisions::contactsCallback(ConstContactsPtr &_contacts){
 	static int cur_contact;
+	int contacts=0;
 	cur_contact = _contacts->contact_size() - 1;
 	while(!(cur_contact < 0)){
 		if(_contacts->contact(cur_contact).collision1().find("ur5") != std::string::npos){
 			ROS_INFO_STREAM("Collision with UR5 detected!\n");
-			this->collision_pub_.publish(this->collision_msg_);
+			contacts++;
 		}
 		if(_contacts->contact(cur_contact).collision2().find("ur5") != std::string::npos){
 			ROS_INFO_STREAM("Collision with UR5 detected!\n");
-			this->collision_pub_.publish(this->collision_msg_);
+			contacts++;
 		}
 		cur_contact--;
 	}
+	collision_msg_.data=contacts;
+	this->collision_pub_.publish(this->collision_msg_);
 }
 
 void UrCollisions::stop(){

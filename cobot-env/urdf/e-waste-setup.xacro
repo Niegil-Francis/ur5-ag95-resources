@@ -367,7 +367,7 @@
     <axis
       xyz="0 0 0" />
   </joint>
-  <link
+  <!-- <link
     name="eth1">
     <inertial>
       <origin
@@ -419,7 +419,7 @@
       link="eth1" />
     <axis
       xyz="0 0 0" />
-  </joint>
+  </joint> -->
   <link
     name="rpi1">
     <inertial>
@@ -1109,7 +1109,7 @@
     <axis
       xyz="0 0 0" />
   </joint>
-  <link
+  <!-- <link
     name="eth2">
     <inertial>
       <origin
@@ -1214,7 +1214,7 @@
       link="eth3" />
     <axis
       xyz="0 0 0" />
-  </joint>
+  </joint> -->
   <link
     name="lipo2">
     <inertial>
@@ -1268,7 +1268,7 @@
     <axis
       xyz="0 0 0" />
   </joint>
-  <link
+  <!-- <link
     name="toolkit">
     <inertial>
       <origin
@@ -1320,7 +1320,7 @@
       link="toolkit" />
     <axis
       xyz="0 0 0" />
-  </joint>
+  </joint> -->
 
   <xacro:include filename="$(find cobot-env)/urdf/e-waste.colors.xacro" />
 

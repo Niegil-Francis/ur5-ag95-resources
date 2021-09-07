@@ -7,8 +7,8 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/gazebo_client.hh>
 
-#include <std_msgs/Empty.h>
-
+#include <std_msgs/Int8.h>
+#include <std_msgs/Int32.h>
 
 
 class UrCollisions{
@@ -30,7 +30,7 @@ public:
   ros::Publisher collision_pub_;
 
   /// @brief Empty message to publish
-  std_msgs::Empty collision_msg_;
+  std_msgs::Int32 collision_msg_;
 
   /**
    * @brief Callback function contacts
