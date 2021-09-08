@@ -275,6 +275,8 @@ class InterruptableTrajectory(UR5Control):
 						self.is_started=False
 						self.new_traj_planned=True
 						self.traj_completed=True
+						self.ERRP.append(0)
+						self.timestamp.append(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
 					else:
 						self.store_resumed_cartesian_path()
 						self.new_traj_planned = False

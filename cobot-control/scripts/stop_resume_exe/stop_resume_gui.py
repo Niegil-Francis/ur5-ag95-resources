@@ -72,7 +72,7 @@ class StopResumeExe(QMainWindow, Ui_main_window):
 
 		self.cancel_traj = GoalID()
 
-		self.is_resumed_pub = rospy.Publisher(self.topics['ur5_resumed'], Bool, queue_size=1)
+		self.is_resumed_pub = rospy.Publisher(self.topics['ur5_resume'], Bool, queue_size=1)
 		self.is_resumed = Bool()
 		self.is_resumed.data = False
 		self.is_resumed_pub.publish(self.is_resumed)
