@@ -21,15 +21,20 @@ void UrCollisions::contactsCallback(ConstContactsPtr &_contacts){
 		if(_contacts->contact(cur_contact).collision1().find("ur5") != std::string::npos){
 			ROS_INFO_STREAM("Collision with UR5 detected!\n");
 			contacts++;
+			collision_msg_.data=contacts;
+			this->collision_pub_.publish(this->collision_msg_);
+			break;
 		}
 		if(_contacts->contact(cur_contact).collision2().find("ur5") != std::string::npos){
 			ROS_INFO_STREAM("Collision with UR5 detected!\n");
 			contacts++;
+			collision_msg_.data=contacts;
+			this->collision_pub_.publish(this->collision_msg_);
+			break;
 		}
 		cur_contact--;
 	}
-	collision_msg_.data=contacts;
-	this->collision_pub_.publish(this->collision_msg_);
+
 }
 
 void UrCollisions::stop(){
