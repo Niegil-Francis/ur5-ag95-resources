@@ -45,6 +45,8 @@ roslaunch cobot-control ur5_moveit_control.launch only_sim:=true
     roslaunch cobot-control ur5_gazebo.launch scene:=e_waste
     ```
 
+> Refere [here](../cobot-env/README.md#launch-file-parameters) for various values that parameters `scene` and `joint_interface` can take.
+
 
 <br/>
 
