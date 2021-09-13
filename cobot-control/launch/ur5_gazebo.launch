@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="scene" default="e_waste"/>
+  <arg name="joint_interface" default="position"/>
+  <arg name="use_rviz" default="false"/>
+  <arg name="launch_moveit" default="false"/>
 
   <!-- By default, we are not in debug mode -->
   <arg name="debug" value="false" />
@@ -11,11 +14,6 @@
   <arg name="physical_params" value="$(find ur_description)/config/ur5/physical_parameters.yaml"/>
   <arg name="visual_params" value="$(find ur_description)/config/ur5/visual_parameters.yaml"/>
 
-  <!-- Controller configuration -->
-  <arg name="controller_config_file" value="$(find cobot-description)/config/ur5_gazebo_controllers.yaml" doc="Config file used for defining the ROS-Control controllers."/>
-  <arg name="controllers" value="joint_state_controller pos_joint_traj_controller" doc="Controllers that are activated by default."/>
-  <arg name="stopped_controllers" value="joint_group_pos_controller" doc="Controllers that are initally loaded, but not started."/>
-
   <!-- robot_state_publisher configuration -->
   <arg name="tf_prefix" value="" doc="tf_prefix used for the robot."/>
   <arg name="tf_pub_rate" value="125" doc="Rate at which robot_state_publisher should publish transforms."/>
@@ -24,9 +22,6 @@
   <param name="robot_description" command="$(find xacro)/xacro '$(find cobot-description)/urdf/ur5.xacro'"/>
   <arg name="load_robot_description" value="false"/>
 
-  <!-- Load controller settings -->
-  <rosparam file="$(arg controller_config_file)" command="load"/>
-
   <!-- Robot state publisher -->
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="$(arg tf_pub_rate)" />
@@ -34,7 +29,7 @@
   </node>
 
   <!-- Run the main MoveIt executable without trajectory execution (we do not have controllers configured by default) -->
-  <include file="$(find ur5_ag95_moveit_config)/launch/move_group.launch">
+  <include file="$(find ur5_ag95_moveit_config)/launch/move_group.launch" if="$(arg launch_moveit)">
     <arg name="allow_trajectory_execution" value="true"/>
     <arg name="fake_execution" value="false"/>
     <arg name="info" value="true"/>
@@ -43,7 +38,7 @@
   </include>
 
   <!-- Run Rviz and load the default config to see the state of the move_group node -->
-  <include file="$(find ur5_ag95_moveit_config)/launch/moveit_rviz.launch">
+  <include file="$(find ur5_ag95_moveit_config)/launch/moveit_rviz.launch" if="$(arg use_rviz)">
     <arg name="config" value="$(find ur5_ag95_moveit_config)/launch/moveit_practice.rviz"/>
     <arg name="debug" value="$(arg debug)"/>
   </include>
@@ -51,6 +46,7 @@
   <!-- Start Gazebo and load the empty world if requested to do so -->
   <include file="$(find cobot-env)/launch/cobot-env.launch">
     <arg name="scene" value="$(arg scene)"/>
+    <arg name="joint_interface" value="$(arg joint_interface)"/>
     <arg name="debug" value="false"/>
     <arg name="gui" value="true"/>
     <arg name="paused" value="true"/>
@@ -59,13 +55,34 @@
     <arg name="world_name" value="$(find cobot-env)/worlds/custom_empty.world"/>
   </include>
 
+  <!-- Controller configuration -->
+  <arg name="controller_config_file" value="$(find cobot-description)/config/ur5_gazebo_pos_controllers.yaml" 
+      if="$(eval arg('joint_interface')=='position')"
+      doc="Config file used for defining the ROS-Control controllers."/>
+  <arg name="controllers" value="joint_state_controller pos_joint_traj_controller" 
+        if="$(eval arg('joint_interface')=='position')"
+        doc="Controllers that are activated by default."/>
+  <arg name="stopped_controllers" value="joint_group_pos_controller" 
+        if="$(eval arg('joint_interface')=='position')"
+        doc="Controllers that are initally loaded, but not started."/>
+
+  <arg name="controller_config_file" value="$(find cobot-description)/config/ur5_gazebo_vel_controllers.yaml"
+        if="$(eval arg('joint_interface')=='velocity')"
+        doc="Config file used for defining the ROS-Control controllers."/>
+  <arg name="controllers" value="joint_state_controller joint_group_vel_controller" 
+        if="$(eval arg('joint_interface')=='velocity')"
+        doc="Controllers that are activated by default."/>
+  
+  <!-- Load controller settings -->
+  <rosparam file="$(arg controller_config_file)" command="load"/>
+  
   <!-- Load and start the controllers listed in the 'controllers' arg. -->
   <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner"
     args="$(arg controllers)" output="screen" respawn="false" />
 
   <!-- Load other controllers, but do not start them -->
   <node name="ros_control_stopped_spawner" pkg="controller_manager" type="spawner"
-    args="--stopped $(arg stopped_controllers)" output="screen" respawn="false" />
+    args="--stopped $(arg stopped_controllers)" output="screen" respawn="false" if="$(eval arg('joint_interface')=='position')"/>
 
   <!-- Add table to RViz -->
   <node pkg="cobot-env" type="build_scene.py" name="scene_builder" if="$(eval arg('scene')=='empty_table')"/>

@@ -2,6 +2,7 @@
 
 <launch>
 	<arg name="scene" default="e_waste"/>
+	<arg name="joint_interface" default="position"/>
 	<arg name="debug" default="false"/>
 	<arg name="gui" default="true"/>
 	<arg name="paused" default="true"/>
@@ -20,39 +21,56 @@
 	</include>
 	
 	<!-- spawn ur5 in home position -->
-	<param name="robot_description" command="$(find xacro)/xacro '$(find cobot-description)/urdf/ur5.xacro'"/>
-	<node name="spawn_ur5_model" pkg="gazebo_ros" type="spawn_model"
-		  args="
-				-urdf
-				-param robot_description
-				-model ur5
-				-J shoulder_lift_joint -1.5708
-				-J wrist_1_joint -1.5708
-				-z 0.938"
-			output="screen" respawn="false" />
+	<group if="$(eval arg('joint_interface')=='position')">
+		<param name="robot_description" command="$(find xacro)/xacro '$(find cobot-description)/urdf/ur5.xacro'"/>
+		<node name="spawn_ur5_model" pkg="gazebo_ros" type="spawn_model"
+			args="
+					-urdf
+					-param robot_description
+					-model ur5
+					-J shoulder_lift_joint -1.5708
+					-J wrist_1_joint -1.5708
+					-z 0.938"
+				output="screen" respawn="false" />
+	</group>
 
-	<!-- spawn human_drone -->
-	<param name="human_drone_desc" 
-		command="$(find xacro)/xacro $(find cobot-env)/urdf/human_drone.xacro" />
-	<node name="spawn_human_drone" 
-		pkg="gazebo_ros"
-		type="spawn_model" 
-		respawn="false"
-		output="screen"
-		args="-urdf -model human_drone -param human_drone_desc -x 0.6 -y 0.8"/>
+	<group if="$(eval arg('joint_interface')=='velocity')">
+		<param name="robot_description" command="$(find xacro)/xacro '$(find cobot-description)/urdf/ur5_vel.xacro'"/>
+		<node name="spawn_ur5_model" pkg="gazebo_ros" type="spawn_model"
+			args="
+					-urdf
+					-param robot_description
+					-model ur5
+					-J shoulder_lift_joint -1.5708
+					-J wrist_1_joint -1.5708
+					-z 0.938"
+				output="screen" respawn="false" />
+	</group>
+
 	
-	<!-- spawn table -->
-	<param  name="table_description" 
-          command="$(find xacro)/xacro '$(find cobot-env)/urdf/e-waste-setup.xacro'" 
-          if="$(eval arg('scene')=='e_waste')"/>
-  	<param  name="table_description" 
-          command="$(find xacro)/xacro '$(find cobot-env)/urdf/table.xacro'" 
-          if="$(eval arg('scene')=='empty_table')"/>
-	<node name="spawn_table" 
-		pkg="gazebo_ros"
-		type="spawn_model" 
-		respawn="false"
-		output="screen"
-		args="-urdf -model table -param table_description -z 0.93"/>
+	<group unless="$(eval arg('scene')=='empty_world')">
+		<!-- spawn human_drone -->
+		<param name="human_drone_desc" 
+			command="$(find xacro)/xacro $(find cobot-env)/urdf/human_drone.xacro" />
+		<node name="spawn_human_drone" 
+			pkg="gazebo_ros"
+			type="spawn_model" 
+			respawn="false"
+			output="screen"
+			args="-urdf -model human_drone -param human_drone_desc -x 0.6 -y 0.8"/>
+		<!-- spawn table -->
+		<param  name="table_description" 
+			command="$(find xacro)/xacro '$(find cobot-env)/urdf/e-waste-setup.xacro'" 
+			if="$(eval arg('scene')=='e_waste')"/>
+		<param  name="table_description" 
+			command="$(find xacro)/xacro '$(find cobot-env)/urdf/table.xacro'" 
+			if="$(eval arg('scene')=='empty_table')"/>
+		<node name="spawn_table" 
+			pkg="gazebo_ros"
+			type="spawn_model" 
+			respawn="false"
+			output="screen"
+			args="-urdf -model table -param table_description -z 0.93"/>
+	</group>
 	
 </launch>
