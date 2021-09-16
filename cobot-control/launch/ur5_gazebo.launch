@@ -52,7 +52,8 @@
     <arg name="paused" value="true"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="verbose" value="true"/>
-    <arg name="world_name" value="$(find cobot-env)/worlds/custom_empty.world"/>
+    <arg name="world_name" value="$(find cobot-env)/worlds/custom_empty.world" if="$(eval arg('joint_interface')=='position')"/>
+    <arg name="world_name" value="$(find cobot-env)/worlds/custom_empty_noG.world" if="$(eval arg('joint_interface')=='velocity')" />
   </include>
 
   <!-- Controller configuration -->
