@@ -65,6 +65,6 @@
   </include>
 
   <!-- Build the environment in RViz  -->
-  <node pkg="cobot-env" type="build_scene.py" name="scene_builder"/>
+  <!-- <node pkg="cobot-env" type="build_scene.py" name="scene_builder"/> -->
 
 </launch>
