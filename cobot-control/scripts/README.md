@@ -8,3 +8,5 @@
 | `adv_pick_place` | Picks and places an object and places it at pre-defined location. It has additional features like: asking user to execute a path or not, etc. |
 | `stop_resume_exe` | Stops the execution of a trajectory and resumes it when required. |
 | `traj_replace` | Refer [here](../src/traj_replace/README.md) for more information |
+| `e_waste_scam` | Think the name is self-explanatory - To reiterate it - DONT USE THIS CODE  |
+

@@ -247,7 +247,7 @@ class UR5Control:
 		"""
 		self.control_gripper(target_force=target_force, target_position=1000)
 	
-	def close_gripper(self, target_force=5):
+	def close_gripper(self, target_force=20):
 		"""
 		Utility function that closes the gripper
 
@@ -256,7 +256,7 @@ class UR5Control:
 		target_force: float:
 			Force applied on the fingers
 		"""
-		self.control_gripper(target_force=target_force, target_position=20)
+		self.control_gripper(target_force=target_force, target_position=0)
 	
 	def move_to_location(self, goal_pose):
 		"""

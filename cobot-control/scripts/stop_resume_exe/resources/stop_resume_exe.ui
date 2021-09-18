@@ -14,7 +14,7 @@
    <string>UR5 Control | Start-Stop-Resume-Home</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(0, 0, 0);</string>
+   <string notr="true">background-color: rgb(220, 220, 220);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="start">
