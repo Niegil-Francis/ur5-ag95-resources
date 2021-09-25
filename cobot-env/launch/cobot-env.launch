@@ -70,7 +70,7 @@
 			type="spawn_model" 
 			respawn="false"
 			output="screen"
-			args="-urdf -model table -param table_description -z 0.93"/>
+			args="-urdf -model table -param table_description -z 0.93 -Y 0.785398"/>
 	</group>
 	
 </launch>
