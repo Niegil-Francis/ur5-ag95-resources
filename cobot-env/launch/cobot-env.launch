@@ -39,7 +39,8 @@
 		type="spawn_model" 
 		respawn="false"
 		output="screen"
-		args="-urdf -model human_drone -param human_drone_desc -x 0.6 -y 0.8"/>
+		args="-urdf -model human_drone -param human_drone_desc -x 0.597566 -y 0.564715 -Y -0.745886"/>
+		
 	
 	<!-- spawn table -->
 	<param  name="table_description" 
@@ -53,6 +54,6 @@
 		type="spawn_model" 
 		respawn="false"
 		output="screen"
-		args="-urdf -model table -param table_description -z 0.93"/>
+		args="-urdf -model table -param table_description -z 0.93 -Y 0.785398"/>
 	
 </launch>

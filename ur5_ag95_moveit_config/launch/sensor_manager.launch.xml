@@ -6,16 +6,9 @@
   <rosparam command="load" file="$(find ur5_ag95_moveit_config)/config/sensors_3d.yaml" />
 
   <!-- Params for the octomap monitor -->
-  <!-- <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
-		<param name="resolution" value="0.05" />
-		
-		<param name="frame_id" type="string" value="base_link" />
-		
-		<param name="max_range" value="1.0" />
-		
-		<remap from="cloud_in" to="/camera/depth/color/points" />
-	
-	</node> -->
+  <!--  <param name="octomap_frame" type="string" value="some frame in which the robot moves" /> -->
+  <!-- <param name="octomap_resolution" type="double" value="0.025" />
+  <param name="max_range" type="double" value="5.0" /> -->
 
   <!-- Load the robot specific sensor manager; this sets the moveit_sensor_manager ROS parameter -->
   <arg name="moveit_sensor_manager" default="ur5_robot" />

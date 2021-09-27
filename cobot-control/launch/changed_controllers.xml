@@ -1,0 +1,3 @@
+<arg name="controller_config_file" value="$(find cobot-description)/config/ur5_gazebo_controllers.yaml" doc="Config file used for defining the ROS-Control controllers."/>
+  <arg name="controllers" value="joint_state_controller pos_joint_traj_controller" doc="Controllers that are activated by default."/>
+  <arg name="stopped_controllers" value="joint_group_pos_controller" doc="Controllers that are initally loaded, but not started."/>

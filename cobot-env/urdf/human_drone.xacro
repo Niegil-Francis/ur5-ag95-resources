@@ -40,6 +40,14 @@
 
   <gazebo reference="hd_base_link">
     <material> Gazebo/Orange </material>
+    <collision>
+        <surface>
+          <contact>
+            <collide_without_contact>true</collide_without_contact>
+          </contact>
+        </surface>
+      </collision>
+    <selfCollide>true</selfCollide>
   </gazebo>
 
 </robot>

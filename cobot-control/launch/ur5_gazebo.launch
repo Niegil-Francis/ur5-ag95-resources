@@ -68,7 +68,7 @@
     args="--stopped $(arg stopped_controllers)" output="screen" respawn="false" />
 
   <!-- Add table to RViz -->
-  <node pkg="cobot-env" type="build_scene.py" name="scene_builder" if="$(eval arg('scene')=='empty_table')"/>
-  <node pkg="cobot-env" type="build_e_waste_scene.py" name="scene_builder" if="$(eval arg('scene')=='e_waste')"/>
+  <!-- <node pkg="cobot-env" type="build_scene.py" name="scene_builder" if="$(eval arg('scene')=='empty_table')"/> -->
+  <!-- <node pkg="cobot-env" type="build_e_waste_scene.py" name="scene_builder" if="$(eval arg('scene')=='e_waste')"/> -->
 
 </launch>

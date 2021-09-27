@@ -62,7 +62,7 @@ class HumanMotion:
 if __name__ == '__main__':
 	rospy.init_node('human_motion', anonymous=True)
 	temp = HumanMotion()
-	rate = rospy.Rate(4)
+	rate = rospy.Rate(50)
 
 	while not rospy.is_shutdown():
 		temp.set_human_pose()
