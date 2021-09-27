@@ -15,7 +15,7 @@ The **ur5-ag95-resources** is a compilation of ROS packages that aid in the simu
 ### Dependencies
 Nodes and launch files of this package require packages of the _ROS-Drivers_ repository:
 ```bash
-git clone --recursive https://github.com/RIL-IISc/ROS-Drivers.git
+git clone --recursive https://github.com/Robotics-Innovations-Lab/ROS-Drivers.git
 ```
 Install the python dependencies by executing the following command in the root directory of this repository
 ```bash
