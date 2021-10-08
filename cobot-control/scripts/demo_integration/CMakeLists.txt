@@ -1,0 +1,1 @@
+catkin_install_python(PROGRAMS demo_integrated.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
