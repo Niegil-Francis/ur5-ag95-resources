@@ -1,3 +1,4 @@
+# Code to convert the real-time graphs to a video
 import cv2
 import numpy as np
 import glob

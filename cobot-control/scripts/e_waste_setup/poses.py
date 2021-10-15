@@ -1,3 +1,4 @@
+# Code defining all the poses required for the video
 from geometry_msgs.msg import Pose
 class Poses:
 	def __init__(self):

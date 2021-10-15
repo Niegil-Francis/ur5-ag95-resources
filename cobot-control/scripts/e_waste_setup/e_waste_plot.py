@@ -1,3 +1,4 @@
+# Code to plot the waypoints
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -42,6 +43,5 @@ def animate(i):
 
 for i in range(1,len(data)):
 	animate(i)
-	# break
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+# Code to run the waypoints used for ICRA video
 # Adding the common python files to path
 from os import wait
 import random
@@ -167,7 +167,6 @@ class InterruptableTrajectory(UR5Control):
 			except:
 				print("exception occured")
 				pass
-			# self.real_time_plotting()
 			time.sleep(0.1)
 
 
@@ -262,28 +261,17 @@ if __name__ == '__main__':
 	fig = plt.figure()
 	ax = plt.axes(projection='3d')
 	for count,j in enumerate(ur5.joint_names):
-		# print(count,j)
+		
 		x = np.array([ur5.joint_pos[k][0] for k in [i+1 for i,val in enumerate(ur5.joint_pos) if(j in val)]])
 		y = np.array([ur5.joint_pos[k][1] for k in [i+1 for i,val in enumerate(ur5.joint_pos) if(j in val)]])
 		z = np.array([ur5.joint_pos[k][2] for k in [i+1 for i,val in enumerate(ur5.joint_pos) if(j in val)]])
-		# print(np.shape(x))
+		
 		data[names_axis[count*3]]=pd.Series(x)
 		data[names_axis[count*3+1]]=pd.Series(y)
 		data[names_axis[count*3+2]]=pd.Series(z)
-		# scatter=ax.scatter(x, y, z, c = ur5.dist, s=1)
-		# ax.plot(x,y,z,label=j,linewidth=0.5)
-	# print("Size",np.shape(ur5.dist))
 	data[names_axis[-1]]=pd.Series(ur5.dist)
-	# print(data.head())
-	# data.to_csv("Graph_data.csv")
-	# # legend1 = ax.legend(*scatter.legend_elements(num=5),
-	# # loc="upper right", title="Euclidean Distance")
-	# ax.legend(loc='upper left')
-	# ax.set_xlabel("x(m)")
-	# ax.set_ylabel('y(m)')
-	# # ax.set_zlabel('z(m)')
-	# # ax.add_artist(legend1)
-	# plt.savefig('Non_ERRP_traj.png')
+	print(data.head())
+	data.to_csv("Graph_data.csv")
 
 
 

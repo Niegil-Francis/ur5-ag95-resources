@@ -36,6 +36,6 @@ include_directories(
 
 add_subdirectory(scripts/basic_pick_place)
 add_subdirectory(scripts/adv_pick_place)
-add_subdirectory(scripts/e_waste_scam)
+add_subdirectory(scripts/e_waste_setup)
 add_subdirectory(scripts/stop_resume_exe)
 add_subdirectory(src/traj_replace)
