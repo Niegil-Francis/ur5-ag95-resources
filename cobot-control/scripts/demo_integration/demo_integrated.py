@@ -89,18 +89,14 @@ class RecognizeColor:
 				try:
 					# recognize speech using Google Speech Recognition
 					value = self.r.recognize_google(audio)
-
-					# we need some special handling here to correctly print unicode characters to standard output
-					if str is bytes:  # this version of Python uses bytes for strings (Python 2)
-						print(u"You said {}".format(value).encode("utf-8"))
-						if value == "red":
-							color = 1
-						elif value == "green":
-							color = 2           
-						elif value == "yellow":
-							color = 3          
-					else:  # this version of Python uses unicode for strings (Python 3+)
-						print("You said {}".format(value))
+					
+					if value == 'red':
+						color = 1
+					elif value == "green":
+						color = 2           
+					elif value == "yellow":
+						color = 3          
+					print("You said {}".format(value))
 				except sr.UnknownValueError:
 					print("Oops! Didn't catch that")
 				except sr.RequestError as e:
@@ -122,16 +118,10 @@ class RecognizeColor:
 			print("Cannot use keyboard input")
 			return 0
 
-	def get_camera_coordinates(self):
+	def get_camera_coordinates(self,color_code):
 		"""
 		Returns the 3D camera coordinate of the centroid of the object
 		"""	
-		color_code = 0
-
-		if self.use_speech_recognition:
-			color_code = self.get_color_from_speech()
-		else:
-			color_code = self.get_color_from_keyboard()
 
 		if color_code == 1:
 			self.low_H = 0
@@ -142,11 +132,12 @@ class RecognizeColor:
 			self.high_V = 255
 		elif color_code == 2:
 			self.low_H = 0
-			self.low_S = 81
+			self.low_S = 85
 			self.low_V = 0
 			self.high_H = 180
-			self.high_S = 152
-			self.high_V = 51
+			self.high_S = 255
+			self.high_V = 33	
+
 
 		# creating a pipeline to get depth and color images
 		pipeline = rs.pipeline()
@@ -159,6 +150,7 @@ class RecognizeColor:
 
 		camera_coord = []
 		counter_not_found=50
+		counter_pause = 200
 		while True:
 			# wait for a new frame and then get the depth and color frame 
 			frames = pipeline.wait_for_frames() 
@@ -173,11 +165,29 @@ class RecognizeColor:
 			# create numpy array of depth and color frames
 			depth_image = np.asanyarray(depth_frame.get_data())
 			color_image = np.asanyarray(color_frame.get_data())
+			# Apply colormap on depth image (image must be converted to 8-bit per pixel first)
+			depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
-			# cv2.imwrite("colour.jpg", color_image)
-			depth_image = depth_image		# TODO: What does this do?
+			depth_colormap_dim = depth_colormap.shape
+			color_colormap_dim = color_image.shape
 
-			cv2.imshow('UR5 View', color_image)  						# displaying the image
+			# If depth and color resolutions are different, resize color image to match depth image for display
+			if depth_colormap_dim != color_colormap_dim:
+				resized_color_image = cv2.resize(color_image, dsize=(depth_colormap_dim[1], depth_colormap_dim[0]), interpolation=cv2.INTER_AREA)
+				images = np.vstack((resized_color_image, depth_colormap))
+			else:
+				images = np.vstack((color_image, depth_colormap))
+
+			# Show images
+			cv2.namedWindow('RealSense View', cv2.WINDOW_AUTOSIZE)
+			cv2.imshow('RealSense', images)
+			# disp_img = cv2.imdecode(color_image, cv2.IMREAD_COLOR)
+			# cv2.imshow('UR5 View', np.resize(disp_img,(1500,850)))			# displaying the image
+			cv2.waitKey(30)
+			if counter_pause != 0:
+				counter_pause -= 1
+				continue
+			
 
 			# check is the requested color is present in the image
 			in_range_mask = cv2.inRange(color_image, (self.low_H, self.low_S, self.low_V), (self.high_H, self.high_S, self.high_V))
@@ -222,7 +232,7 @@ class RecognizeColor:
 					else:
 						px, py = 0, 0
 					
-					cv2.imshow('Contours', color_image)  # displaying the color image with contours
+					# cv2.imshow('Contours', color_image)  # displaying the color image with contours
 			
 			# to eliminate the cases when no camera coordinate is obtained		
 			if len(temp_camera_coord)!=0:
@@ -240,15 +250,18 @@ class RecognizeColor:
 			else:
 				counter_not_found -=1
 				if(counter_not_found==0):
-					camera_coord = [[0],[0],[0],[1]]
+					camera_coord = []
 					break
 		cv2.destroyAllWindows()		# after pressing any key close all the window
 		
 		# the camera coordinates are obtained in mm while the transformation matrix values
 		# are obtained in m. Hence, the coordinates are converted from mm to m while
 		# preserving the last element in the vector.
-		camera_coord = camera_coord/1000
-		camera_coord[3][0] = 1
+		try:
+			camera_coord = camera_coord/1000
+			camera_coord[3][0] = 1
+		except:
+			pass	
 
 		return camera_coord
 
@@ -333,7 +346,7 @@ class UR5Control:
 			
 			# after sending the open gripper command, sleep for 2 seconds
 			print("Pausing (gripper_open)...")
-			time.sleep(2)
+			time.sleep(5)
 			print("...done!")
 	
 	def gripper_close(self):
@@ -341,17 +354,17 @@ class UR5Control:
 		Closes the gripper
 		"""
 		if not rospy.is_shutdown():
-			self.gripper_msg.target_position = 20
+			self.gripper_msg.target_position = 0
 			self.gripper_msg.target_force = 20
 
 			self.gripper_pub.publish(self.gripper_msg)
 			
 			# after sending the close gripper command, sleep for 2 seconds
 			print("Pausing (gripper_close)...")
-			time.sleep(2)
+			time.sleep(5)
 			print("...done!")
 
-	def get_goal_pose(self, base_link_coord):
+	def get_goal_pose(self, base_link_coord, ori):
 		"""
 		Converts the base link coordinate location to goal pose.
 		A new parameter maybe added to this method to provide orientation information
@@ -373,11 +386,28 @@ class UR5Control:
 		if pose_goal.position.z < (self.z_safety/1000):
 			pose_goal.position.z = (self.z_safety/1000)
 			print("Z pose set to Z-safety limit!")
-		
-		pose_goal.orientation.x = -0.926984315176
-		pose_goal.orientation.y = 0.374568844855
-		pose_goal.orientation.z = -0.00467163233836
-		pose_goal.orientation.w = 0.019401951777
+		if ori == 0:
+			pose_goal.orientation.x = -0.926984315176
+			pose_goal.orientation.y = 0.374568844855
+			pose_goal.orientation.z = -0.00467163233836
+			pose_goal.orientation.w = 0.019401951777
+		elif ori == 1:
+			pose_goal.orientation.x = -0.3951194154526702
+			pose_goal.orientation.y = 0.9184144889901309
+			pose_goal.orientation.z = -0.000717654119870179
+			pose_goal.orientation.w = 0.01987357335511816
+		elif ori == 2:
+			pose_goal.orientation.x = 0.4206461354137426
+			pose_goal.orientation.y = 0.9070166964252067
+			pose_goal.orientation.z = -0.012149332472504321
+			pose_goal.orientation.w = 0.015163604052477563
+		elif ori == 3:
+			pose_goal.orientation.x = 0.9205918238476513
+			pose_goal.orientation.y = 0.3895165742342791
+			pose_goal.orientation.z = -0.023997892087658172
+			pose_goal.orientation.w = 0.014547626507278536
+
+
 
 		return pose_goal
 
@@ -418,7 +448,7 @@ class UR5Control:
 
 		pose_goal.position.x = 0.697925644962
 		pose_goal.position.y = 0.102895313812
-		pose_goal.position.z = 0.225430132411
+		pose_goal.position.z = 0.280430132411
 
 		pose_goal.orientation.x = 0.720109681727
 		pose_goal.orientation.y = -0.692563162952
@@ -428,21 +458,20 @@ class UR5Control:
 		return pose_goal
 	
 	def move_to_joint_goal(self,poses):
-		for i in poses:
-			joint_goal = self.group.get_current_joint_values()
-			joint_goal[0] = i[0]
-			joint_goal[1] = i[1]
-			joint_goal[2] = i[2]
-			joint_goal[3] = i[3]
-			joint_goal[4] = i[4]
-			joint_goal[5] = i[5]
+		joint_goal = self.group.get_current_joint_values()
+		joint_goal[0] = i[0]
+		joint_goal[1] = i[1]
+		joint_goal[2] = i[2]
+		joint_goal[3] = i[3]
+		joint_goal[4] = i[4]
+		joint_goal[5] = i[5]
 
-			# The go command can be called with joint values, poses, or without any
-			# parameters if you have already set the pose or joint target for the group
-			self.group.go(joint_goal, wait=True)
+		# The go command can be called with joint values, poses, or without any
+		# parameters if you have already set the pose or joint target for the group
+		self.group.go(joint_goal, wait=True)
 
-			# Calling ``stop()`` ensures that there is no residual movement
-			self.group.stop()
+		# Calling ``stop()`` ensures that there is no residual movement
+		self.group.stop()
 
 
 if __name__ == '__main__':
@@ -451,21 +480,37 @@ if __name__ == '__main__':
 	ur_control.gripper_open()
 
 	recognize_color = RecognizeColor()
+	color_code = 0
+
+	if recognize_color.use_speech_recognition:
+		color_code = recognize_color.get_color_from_speech()
+	else:
+		color_code = recognize_color.get_color_from_keyboard()
 
 	flag_block_found = 0
 
 	locs = [[1.293265, -1.685396, 0.844205, -0.745863, -1.561371, -0.237226],
-[0.732017, -1.714245, 0.844205, -0.720935, -1.569340, -0.123888],
-[0.018044, -1.667130, 0.860814, -0.807661, -1.506759, -0.026385],
-[-0.693581, -1.669192, 0.877124, -0.795455, -1.510666, -0.026229],
-[-1.703134, -1.751485, 1.012739, -0.863926, -1.540590, -0.120199],
-[-2.434774, -1.727274, 1.092285, -0.995637, -1.538805, -0.120115],
-[-3.157194, -1.796829, 1.185859, -0.993649, -1.560077, -0.116594],
-[-4.038551, -2.094197, 1.316575, -0.804714, -1.510570, -0.116858]]
+			[0.732017, -1.714245, 0.844205, -0.720935, -1.569340, -0.123888],
+			[0.018044, -1.667130, 0.860814, -0.807661, -1.506759, -0.026385],
+			[-0.693581, -1.669192, 0.877124, -0.795455, -1.510666, -0.026229],
+			[-1.703134, -1.751485, 1.012739, -0.863926, -1.540590, -0.120199],
+			[-2.434774, -1.727274, 1.092285, -0.995637, -1.538805, -0.120115],
+			[-3.157194, -1.796829, 1.185859, -0.993649, -1.560077, -0.116594],
+			[-4.038551, -2.094197, 1.316575, -0.804714, -1.510570, -0.116858]]
+	home = [0.018044, -1.667130, 0.860814, -0.807661, -1.506759, -0.026385]
+	ori = 0
 	for counter,i in enumerate(locs):
+		if counter < 2:
+			ori = 0
+		elif counter < 4:
+			ori = 1
+		elif counter < 6:
+			ori = 2
+		elif counter < 8:
+			ori = 3
 		ur_control.move_to_joint_goal(i)
-		camera_coord  = recognize_color.get_camera_coordinates()
-		if(camera_coord==[[0],[0],[0],[1]]):
+		camera_coord  = recognize_color.get_camera_coordinates(color_code)
+		if isinstance(camera_coord, list):
 			continue
 		else:
 
@@ -479,20 +524,22 @@ if __name__ == '__main__':
 
 			initial_pose = ur_control.group.get_current_pose().pose
 
-			ur_control.move_to_location(ur_control.get_goal_pose(base_link_coord))
+			ur_control.move_to_location(ur_control.get_goal_pose(base_link_coord,ori))
 
 			ur_control.gripper_close()
 			
-			for j in range(counter,0,-1):
-				ur_control.move_to_location(ur_control.get_goal_pose(i))
+			# print(locs[0])
+			ur_control.move_to_joint_goal(home)
 			
 			ur_control.move_to_location(ur_control.get_place_location_pose())
 
 			ur_control.gripper_open()
 			
-			ur_control.move_to_location(initial_pose)
+			ur_control.move_to_joint_goal(home)
 			
 			print("Done!")
+
+			break
 	
 	if flag_block_found == 0:
 		for j in range(counter,0,-1):
