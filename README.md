@@ -1,7 +1,8 @@
 # ur5-ag95-resources
 
 ## Repository Overview
-The **ur5-ag95-resources** is a compilation of ROS packages that aid in the simulation and control of UR5.
+The **ur5-ag95-resources** is a compilation of ROS packages that aid in the simulation and control of UR5. 
+
 
 ### Key features
 - Tested on ROS-Melodic + Gazebo-9 and ROS-Noetic + Gazebo-11
