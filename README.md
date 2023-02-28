@@ -1,5 +1,5 @@
 # ur5-ag95-resources
-![](human_robot_collaboration.gif)
+![](human-robot-collaboration.gif)
 ## Repository Overview
 The **ur5-ag95-resources** is a compilation of ROS packages that aid in the simulation and control of UR5. 
 
